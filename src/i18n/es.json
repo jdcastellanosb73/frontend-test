@@ -8,10 +8,10 @@
     "login": "Iniciar sesión"
   },
   "hero": {
-    "title": "Pagos para plataformas y marketplaces",
-    "description": "Crosspay es la forma más rápida y sencilla de integrar pagos en tu plataforma o marketplace. Nuestras APIs te permiten crear experiencias de pago completas, desde onboarding instantáneo hasta pagos globales.",
+    "title": "Tu alianza con el futuro de los pagos globales",
+    "description": "Con el respaldo de nuestros servicios FX, su empresa puede elevar la eficiencia de sus operaciones internacionales. Contáctenos para recibir una evaluación profesional y descubrir cómo potenciar la presencia de tu empresa en el mercado global.",
     "ctaStart": "Empezar ahora",
-    "ctaContact": "Contactar ventas"
+    "ctaContact": "Contáctanos"
   },
   "payment": {
     "method": "Método de pago",
@@ -20,28 +20,26 @@
     "cvv": "CVV",
     "cardHolder": "Nombre del titular",
     "payButton": "Pagar $12.47",
-    "processing": "Procesando...",
-    "success": "✓ Pago completado",
     "security": "🔒 Protegido con encriptación de extremo a extremo"
   },
   "features": {
-    "title": "Todo lo que necesitas para escalar tu marketplace",
-    "description": "Desde pequeñas startups hasta las plataformas más grandes del mundo, miles de empresas confían en nuestra infraestructura de pagos.",
-    "instantOnboarding": {
-      "title": "Onboarding instantáneo",
-      "description": "Ten vendedores operativos en minutos con nuestro proceso KYC simplificado."
-    },
-    "globalPayouts": {
+    "title": "Soluciones financieras para el crecimiento global",
+    "description": "Diseñamos soluciones adaptadas a tus objetivos internacionales, con tecnología de vanguardia y cumplimiento regulatorio.",
+    "globalPayments": {
       "title": "Pagos globales",
-      "description": "Paga a vendedores en más de 40 países con métodos de pago locales."
+      "description": "Envía y recibe pagos en múltiples divisas con tasas competitivas y liquidación rápida."
     },
-    "revenueSharing": {
-      "title": "Distribución de ingresos",
-      "description": "Divide pagos automáticamente y cobra tus comisiones de plataforma."
+    "fxServices": {
+      "title": "Servicios FX",
+      "description": "Protege tus márgenes con cobertura cambiaria inteligente y conversión en tiempo real."
     },
-    "riskManagement": {
-      "title": "Gestión de riesgos",
-      "description": "Detección avanzada de fraude y cumplimiento integrado."
+    "compliance": {
+      "title": "Cumplimiento global",
+      "description": "Operamos bajo los más altos estándares regulatorios en cada jurisdicción."
+    },
+    "dedicatedSupport": {
+      "title": "Soporte dedicado",
+      "description": "Un equipo especializado te acompaña en cada paso de tu expansión internacional."
     }
   }
 }

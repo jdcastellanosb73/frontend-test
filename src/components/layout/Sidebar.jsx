@@ -25,7 +25,7 @@ export default function Sidebar() {
   const menuItems = [
     { name: 'Dashboard', path: '/dashboard' },
     { name: 'pagos', path: '/transactions' },
-    { name: 'Tarjetas', path: '/accounts' },
+    { name: 'Tarjetas', path: '/cards' },
     { name: 'Configuración', path: '/settings' },
   ];
 

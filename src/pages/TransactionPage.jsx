@@ -1,0 +1,420 @@
+import { useState, useEffect } from 'react';
+import { Lock, CreditCard, User, FileText, DollarSign, Calendar, Shield } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import Sidebar from '../components/layout/Sidebar'; // 👈 Importamos el Sidebar
+
+const TransactionPage = () => {
+  const [formData, setFormData] = useState({
+    currency: 'COP',
+    amount: '',
+    description: '',
+    customerName: '',
+    documentType: 'CC',
+    cardNumber: '',
+    expiryDate: '',
+    cvv: '',
+    cardholderName: ''
+  });
+
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [apiError, setApiError] = useState('');
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      navigate('/login');
+    }
+  }, [navigate]);
+
+  const currencies = [
+    { code: 'COP', symbol: '$', name: 'Peso Colombiano' },
+    { code: 'USD', symbol: '$', name: 'Dólar Americano' }
+  ];
+
+  const documentTypes = [
+    { code: 'CC', name: 'Cédula de Ciudadanía' },
+    { code: 'PP', name: 'Pasaporte' }
+  ];
+
+  const formatCardNumber = (value) => {
+    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+    const matches = v.match(/\d{4,16}/g);
+    const match = matches && matches[0] || '';
+    const parts = [];
+    for (let i = 0, len = match.length; i < len; i += 4) {
+      parts.push(match.substring(i, i + 4));
+    }
+    return parts.length ? parts.join(' ') : v;
+  };
+
+  const formatExpiryDateForAPI = (value) => {
+    const clean = value.replace(/\D/g, '');
+    if (clean.length >= 4) {
+      const month = clean.substring(0, 2);
+      const year = clean.substring(2, 4);
+      return `20${year}-${month}-01`; 
+    }
+    return '';
+  };
+
+  const formatAmountForAPI = (value) => {
+    const numericValue = value.replace(/,/g, '');
+    return parseFloat(numericValue) || 0;
+  };
+
+  const handleInputChange = (field, value) => {
+    let formattedValue = value;
+    
+    if (field === 'cardNumber') {
+      formattedValue = formatCardNumber(value);
+    } else if (field === 'expiryDate') {
+      const v = value.replace(/\D/g, '');
+      if (v.length >= 2) {
+        formattedValue = v.substring(0, 2) + '/' + v.substring(2, 4);
+      } else {
+        formattedValue = v;
+      }
+    } else if (field === 'cvv') {
+      formattedValue = value.replace(/[^0-9]/g, '').substring(0, 4);
+    } else if (field === 'amount') {
+      const numericValue = value.replace(/[^0-9]/g, '');
+      formattedValue = numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+    
+    setFormData(prev => ({
+      ...prev,
+      [field]: formattedValue
+    }));
+
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
+    if (apiError) setApiError('');
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.amount) newErrors.amount = 'El monto es requerido';
+    if (!formData.description.trim()) newErrors.description = 'La descripción es requerida';
+    if (!formData.customerName.trim()) newErrors.customerName = 'El nombre es requerido';
+    if (!formData.cardNumber.replace(/\s/g, '')) newErrors.cardNumber = 'El número de tarjeta es requerido';
+    if (formData.cardNumber.replace(/\s/g, '').length < 13) newErrors.cardNumber = 'Número de tarjeta inválido';
+    if (!formData.expiryDate || formData.expiryDate.length < 5) newErrors.expiryDate = 'La fecha de vencimiento es requerida';
+    if (!formData.cvv) newErrors.cvv = 'El CVV es requerido';
+    if (!formData.cardholderName.trim()) newErrors.cardholderName = 'El nombre del titular es requerido';
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async () => {
+    if (!validateForm()) return;
+
+    setIsProcessing(true);
+    setApiError('');
+
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/transactions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          currency: formData.currency,
+          amount: formatAmountForAPI(formData.amount),
+          description: formData.description,
+          full_name: formData.customerName,
+          document_type: formData.documentType,
+          card_number: formData.cardNumber.replace(/\s/g, ''),
+          cvv: formData.cvv,
+          expiration_date: formatExpiryDateForAPI(formData.expiryDate),
+          type: 'withdrawal',
+          category: 'General'
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert('¡Transacción realizada exitosamente!');
+        setFormData({
+          currency: 'COP',
+          amount: '',
+          description: '',
+          customerName: '',
+          documentType: 'CC',
+          cardNumber: '',
+          expiryDate: '',
+          cvv: '',
+          cardholderName: ''
+        });
+      } else {
+        setApiError(data.message || 'Error al procesar la transacción. Intenta de nuevo.');
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      setApiError('Error de conexión. Verifica tu red.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const getAmountInCurrency = () => {
+    if (!formData.amount) return '0.00';
+    const numericAmount = formData.amount.replace(/,/g, '');
+    return parseFloat(numericAmount || 0).toLocaleString('es-CO', { 
+      minimumFractionDigits: 2, 
+      maximumFractionDigits: 2 
+    });
+  };
+
+  const selectedCurrency = currencies.find(c => c.code === formData.currency);
+
+  return (
+    <div className="flex min-h-screen bg-bgPpal-light dark:bg-bgPpal-dark">
+      {/* Barra lateral */}
+      <Sidebar />
+      
+      {/* Contenido principal */}
+      <main className="flex-1 flex items-center justify-center p-4">
+        <div className="w-full max-w-md bg-gray-800/90 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-700/50 overflow-hidden">
+          {/* Header con gradiente */}
+          <div className="h-1 bg-gradient-to-r from-purple-500 via-blue-500 to-pink-500"></div>
+          
+          {/* Header del pago */}
+          <div className="p-6 border-b border-gray-700/50">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">P</span>
+                </div>
+                <div>
+                  <h2 className="text-white font-semibold">PayConnect</h2>
+                  <p className="text-gray-400 text-sm">Pasarela de Pagos</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold text-white">
+                  {selectedCurrency.symbol}{getAmountInCurrency()}
+                </div>
+                <div className="text-sm text-gray-400">{selectedCurrency.code}</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-6 space-y-6">
+            {apiError && (
+              <div className="p-3 bg-red-900/30 border border-red-700 rounded-lg text-red-200 text-sm">
+                {apiError}
+              </div>
+            )}
+
+            {/* Divisa y Monto */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <DollarSign size={16} className="inline mr-1" />
+                  Divisa
+                </label>
+                <select
+                  value={formData.currency}
+                  onChange={(e) => handleInputChange('currency', e.target.value)}
+                  className="w-full px-3 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all outline-none"
+                >
+                  {currencies.map(currency => (
+                    <option key={currency.code} value={currency.code} className="bg-gray-800">
+                      {currency.code} - {currency.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Monto
+                </label>
+                <input
+                  type="text"
+                  value={formData.amount}
+                  onChange={(e) => handleInputChange('amount', e.target.value)}
+                  className={`w-full px-3 py-3 bg-gray-700/50 border rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all outline-none ${
+                    errors.amount ? 'border-red-500' : 'border-gray-600'
+                  }`}
+                  placeholder="100,000"
+                />
+                {errors.amount && <p className="text-red-400 text-xs mt-1">{errors.amount}</p>}
+              </div>
+            </div>
+
+            {/* Descripción */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                <FileText size={16} className="inline mr-1" />
+                Descripción de la transacción
+              </label>
+              <input
+                type="text"
+                value={formData.description}
+                onChange={(e) => handleInputChange('description', e.target.value)}
+                className={`w-full px-3 py-3 bg-gray-700/50 border rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all outline-none ${
+                  errors.description ? 'border-red-500' : 'border-gray-600'
+                }`}
+                placeholder="Pago de servicios, compra de productos, etc."
+              />
+              {errors.description && <p className="text-red-400 text-xs mt-1">{errors.description}</p>}
+            </div>
+
+            {/* Datos del cliente */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                <User size={16} className="inline mr-1" />
+                Nombre completo
+              </label>
+              <input
+                type="text"
+                value={formData.customerName}
+                onChange={(e) => handleInputChange('customerName', e.target.value)}
+                className={`w-full px-3 py-3 bg-gray-700/50 border rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all outline-none ${
+                  errors.customerName ? 'border-red-500' : 'border-gray-600'
+                }`}
+                placeholder="Juan Pérez González"
+              />
+              {errors.customerName && <p className="text-red-400 text-xs mt-1">{errors.customerName}</p>}
+            </div>
+
+            {/* Tipo de documento */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Tipo de documento
+              </label>
+              <select
+                value={formData.documentType}
+                onChange={(e) => handleInputChange('documentType', e.target.value)}
+                className="w-full px-3 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all outline-none"
+              >
+                {documentTypes.map(doc => (
+                  <option key={doc.code} value={doc.code} className="bg-gray-800">
+                    {doc.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Número de tarjeta */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                <CreditCard size={16} className="inline mr-1" />
+                Número de tarjeta
+              </label>
+              <input
+                type="text"
+                value={formData.cardNumber}
+                onChange={(e) => handleInputChange('cardNumber', e.target.value)}
+                className={`w-full px-3 py-3 bg-gray-700/50 border rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all outline-none ${
+                  errors.cardNumber ? 'border-red-500' : 'border-gray-600'
+                }`}
+                placeholder="•••• •••• •••• ••••"
+                maxLength={19}
+              />
+              {errors.cardNumber && <p className="text-red-400 text-xs mt-1">{errors.cardNumber}</p>}
+            </div>
+
+            {/* Fecha y CVV */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <Calendar size={16} className="inline mr-1" />
+                  Fecha de vencimiento
+                </label>
+                <input
+                  type="text"
+                  value={formData.expiryDate}
+                  onChange={(e) => handleInputChange('expiryDate', e.target.value)}
+                  className={`w-full px-3 py-3 bg-gray-700/50 border rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all outline-none ${
+                    errors.expiryDate ? 'border-red-500' : 'border-gray-600'
+                  }`}
+                  placeholder="MM/AA"
+                  maxLength={5}
+                />
+                {errors.expiryDate && <p className="text-red-400 text-xs mt-1">{errors.expiryDate}</p>}
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <Shield size={16} className="inline mr-1" />
+                  CVV
+                </label>
+                <input
+                  type="text"
+                  value={formData.cvv}
+                  onChange={(e) => handleInputChange('cvv', e.target.value)}
+                  className={`w-full px-3 py-3 bg-gray-700/50 border rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all outline-none ${
+                    errors.cvv ? 'border-red-500' : 'border-gray-600'
+                  }`}
+                  placeholder="•••"
+                  maxLength={4}
+                />
+                {errors.cvv && <p className="text-red-400 text-xs mt-1">{errors.cvv}</p>}
+              </div>
+            </div>
+
+            {/* Nombre del titular */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Nombre del titular de la tarjeta
+              </label>
+              <input
+                type="text"
+                value={formData.cardholderName}
+                onChange={(e) => handleInputChange('cardholderName', e.target.value)}
+                className={`w-full px-3 py-3 bg-gray-700/50 border rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all outline-none ${
+                  errors.cardholderName ? 'border-red-500' : 'border-gray-600'
+                }`}
+                placeholder="Nombre como aparece en la tarjeta"
+              />
+              {errors.cardholderName && <p className="text-red-400 text-xs mt-1">{errors.cardholderName}</p>}
+            </div>
+
+            {/* Botón de transacción */}
+            <button
+              onClick={handleSubmit}
+              disabled={isProcessing}
+              className={`w-full py-4 rounded-xl font-semibold text-lg transition-all duration-300 ${
+                isProcessing
+                  ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 hover:transform hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-500/25 active:scale-95'
+              }`}
+            >
+              {isProcessing ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                  Procesando transacción...
+                </div>
+              ) : (
+                `Pagar ${selectedCurrency.symbol}${getAmountInCurrency()}`
+              )}
+            </button>
+
+            {/* Info de seguridad */}
+            <div className="flex items-center justify-center gap-2 text-xs text-gray-400">
+              <Lock size={14} />
+              <span>Protegido con encriptación de extremo a extremo</span>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default TransactionPage;

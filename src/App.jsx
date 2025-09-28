@@ -4,6 +4,8 @@ import LandingPage from './pages/LandingPage';
 import SignupPage from './pages/SignupPage';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
+import TransactionPage from './pages/TransactionPage';
+import CardsPage from './pages/CardsPage';
 
 // Hook para tema del sistema (sin botón manual)
 import { useEffect } from 'react';
@@ -39,6 +41,8 @@ function App() {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/transactions" element={<TransactionPage />} />
+          <Route path="/cards" element={<CardsPage />} />
         </Routes>
       </BrowserRouter>
     </LanguageProvider>

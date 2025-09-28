@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
-    email: '',
+    username: '', 
     password: '',
     staySignedIn: true
   });
@@ -19,49 +19,48 @@ export default function LoginPage() {
     if (error) setError('');
   };
 
-const handleSubmit = async () => {
-  if (!formData.email || !formData.password) {
-    setError('Por favor ingresa email o nombre de usuario y contraseña.');
-    return;
-  }
-
-  setIsLoading(true);
-  setError('');
-
-  try {
-    const response = await fetch('https://backend-test-qawh.onrender.com/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username: formData.email, // acepta email o username
-        password: formData.password,
-      }),
-    });
-
-    const data = await response.json();
-
-    if (response.ok && data.token) {
-      // Guardar token y datos del usuario
-      localStorage.setItem('access_token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      
-      if (formData.staySignedIn) {
-        localStorage.setItem('stay_signed_in', 'true');
-      }
-
-      navigate('/dashboard');
-    } else {
-      setError(data.detail || data.message || 'Credenciales incorrectas. Intenta de nuevo.');
+  const handleSubmit = async () => {
+    if (!formData.username || !formData.password) {
+      setError('Por favor ingresa tu usuario o correo y contraseña.');
+      return;
     }
-  } catch (err) {
-    console.error('Error de login:', err);
-    setError('Error de conexión. Verifica tu red.');
-  } finally {
-    setIsLoading(false);
-  }
-};
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          emailOrUsername: formData.username, 
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.token) {
+        localStorage.setItem('access_token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        if (formData.staySignedIn) {
+          localStorage.setItem('stay_signed_in', 'true');
+        }
+
+        navigate('/dashboard');
+      } else {
+        setError(data.message || 'Credenciales incorrectas. Intenta de nuevo.');
+      }
+    } catch (err) {
+      console.error('Error de login:', err);
+      setError('Error de conexión. Verifica tu red.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
@@ -107,19 +106,19 @@ const handleSubmit = async () => {
           )}
 
           <div className="space-y-6">
-            {/* Email */}
+            {/* Campo de usuario o email */}
             <div>
               <label className="block text-sm font-medium text-titles-light dark:text-titles-dark mb-2">
-                Correo electrónico
+                Usuario o correo electrónico
               </label>
               <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
+                type="text"
+                value={formData.username}
+                onChange={(e) => handleInputChange('username', e.target.value)}
                 onKeyPress={handleKeyPress}
                 className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all outline-none bg-bgPpal-light dark:bg-bgPpal-dark text-titles-light dark:text-titles-dark"
-                placeholder="tu@ejemplo.com"
-                autoComplete="email"
+                placeholder="juan o juan@ejemplo.com"
+                autoComplete="username"
                 required
               />
             </div>
@@ -176,9 +175,9 @@ const handleSubmit = async () => {
             {/* Botón */}
             <button
               onClick={handleSubmit}
-              disabled={isLoading || !formData.email || !formData.password}
+              disabled={isLoading || !formData.username || !formData.password}
               className={`w-full py-4 px-6 rounded-lg font-semibold text-lg transition-all duration-300 ${
-                isLoading || !formData.email || !formData.password
+                isLoading || !formData.username || !formData.password
                   ? 'bg-purple-300 text-white cursor-not-allowed'
                   : 'bg-gradient-to-r from-purple-600 to-pink-500 text-white hover:from-purple-700 hover:to-pink-600 hover:transform hover:-translate-y-0.5 hover:shadow-lg'
               }`}

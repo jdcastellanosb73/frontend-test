@@ -4,6 +4,16 @@ import Sidebar from '../components/layout/Sidebar';
 
 export default function DashboardPage() {
   const [user, setUser] = useState(null);
+  const [transactions, setTransactions] = useState([]);
+  const [summary, setSummary] = useState({
+    total_withdrawals: "0.00"
+  });
+  const [statsData, setStatsData] = useState({
+    monthlySpending: [],
+    topCategories: []
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,21 +27,97 @@ export default function DashboardPage() {
     }
   }, [navigate]);
 
+  useEffect(() => {
+    if (!user) return;
+
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+
+    const fetchData = async () => {
+      setLoading(true);
+      setError('');
+
+      try {
+        const transactionsRes = await fetch('/api/transactions', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const transactionsData = await transactionsRes.json();
+        const transactionsList = Array.isArray(transactionsData.data) ? transactionsData.data : [];
+
+        const summaryRes = await fetch('/api/transactions/summary', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const summaryData = await summaryRes.json();
+        const summaryInfo = summaryData || { total_withdrawals: "0.00" };
+
+        const statsRes = await fetch('/api/transactions/stats', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const statsData = await statsRes.json();
+        const statsInfo = statsData || { monthlySpending: [], topCategories: [] };
+
+        setTransactions(transactionsList);
+        setSummary(summaryInfo);
+        setStatsData(statsInfo);
+      } catch (err) {
+        console.error('Error fetching dashboard data:', err);
+        setError('Error al cargar los datos del dashboard.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [user, navigate]);
+
   if (!user) return null;
 
-  // Datos de ejemplo para el dashboard
-  const stats = [
-    { title: 'Total Revenue', value: '$24,580', change: '+12.5%', icon: '💰' },
-    { title: 'Active Sellers', value: '1,248', change: '+8.2%', icon: '👥' },
-    { title: 'Transactions', value: '4,892', change: '+15.3%', icon: '📊' },
-    { title: 'Disputes', value: '24', change: '-3.1%', icon: '⚠️' },
-  ];
+  const monthlySpending = statsData.monthlySpending?.[0]?.total || "0.00";
+  const monthName = statsData.monthlySpending?.[0]?.month || "Este mes";
 
-  const recentTransactions = [
-    { id: 'TXN-001', merchant: 'Lyft', amount: '$12.47', status: 'completed', date: '2023-05-15' },
-    { id: 'TXN-002', merchant: 'Uber', amount: '$24.99', status: 'completed', date: '2023-05-14' },
-    { id: 'TXN-003', merchant: 'Airbnb', amount: '$142.50', status: 'pending', date: '2023-05-13' },
-    { id: 'TXN-004', merchant: 'Shopify', amount: '$89.99', status: 'completed', date: '2023-05-12' },
+  const topCategory = statsData.topCategories?.[0]?.category || "Sin categoría";
+  const topCategoryTotal = statsData.topCategories?.[0]?.total || "0.00";
+
+  const formatAmount = (amount) => {
+    if (!amount) return "0.00";
+    return parseFloat(amount).toLocaleString('es-CO', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  };
+
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-CO');
+  };
+
+  // Mapeo de tipo de documento
+  const getDocumentTypeName = (code) => {
+    const types = { 'CC': 'Cédula de Ciudadanía', 'PP': 'Pasaporte' };
+    return types[code] || code;
+  };
+
+  const stats = [
+    { 
+      title: `Total gastado en ${monthName}`, 
+      value: `$${formatAmount(monthlySpending)}`, 
+      change: ''
+    },
+    { 
+      title: 'Top categoría', 
+      value: topCategory, 
+      change: `$${formatAmount(topCategoryTotal)}`
+    },
+    { 
+      title: 'Total gastado', 
+      value: `$${formatAmount(summary.total_withdrawals)}`, 
+      change: ''
+    }
   ];
 
   return (
@@ -39,18 +125,17 @@ export default function DashboardPage() {
       <Sidebar />
       
       <main className="flex-1 p-6">
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-titles-light dark:text-titles-dark">
             Bienvenido, {user.username} 👋
           </h1>
           <p className="text-pg-light dark:text-pg-dark mt-2">
-            Aquí está tu resumen de actividad reciente.
+            Aquí está tu resumen financiero.
           </p>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {stats.map((stat, index) => (
             <div 
               key={index} 
@@ -60,7 +145,9 @@ export default function DashboardPage() {
                 <div>
                   <p className="text-pg-light dark:text-pg-dark text-sm">{stat.title}</p>
                   <p className="text-2xl font-bold text-titles-light dark:text-titles-dark mt-1">{stat.value}</p>
-                  <p className="text-green-500 text-sm mt-1">{stat.change}</p>
+                  {stat.change && (
+                    <p className="text-pg-light dark:text-pg-dark text-sm mt-1">{stat.change}</p>
+                  )}
                 </div>
                 <div className="text-3xl">{stat.icon}</div>
               </div>
@@ -68,40 +155,65 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        {/* Recent Transactions */}
+        {/* Transacciones */}
         <div className="bg-bgSec-light dark:bg-bgSec-dark rounded-xl border border-line-light dark:border-line-dark p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold text-titles-light dark:text-titles-dark">
-              Transacciones recientes
+              Transacciones
             </h2>
-            <button className="text-purple-600 hover:text-purple-700 text-sm font-medium">
-              Ver todas
+            <button 
+              onClick={() => navigate('/transactions')}
+              className="text-purple-600 hover:text-purple-700 text-sm font-medium"
+            >
+              Crear nueva
             </button>
           </div>
 
-          <div className="space-y-4">
-            {recentTransactions.map((txn) => (
-              <div 
-                key={txn.id} 
-                className="flex items-center justify-between p-4 border border-line-light dark:border-line-dark rounded-lg hover:bg-bgPpal-light dark:hover:bg-bgPpal-dark transition-colors"
-              >
-                <div>
-                  <p className="font-medium text-titles-light dark:text-titles-dark">{txn.merchant}</p>
-                  <p className="text-sm text-pg-light dark:text-pg-dark">{txn.id} • {txn.date}</p>
-                </div>
-                <div className="text-right">
-                  <p className="font-semibold text-titles-light dark:text-titles-dark">{txn.amount}</p>
-                  <span className={`text-xs px-2 py-1 rounded-full ${
-                    txn.status === 'completed' 
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' 
-                      : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
-                  }`}>
-                    {txn.status === 'completed' ? 'Completada' : 'Pendiente'}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
+
+          {loading ? (
+            <div className="flex justify-center py-8">
+              <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          ) : transactions.length === 0 ? (
+            <div className="text-center py-8 text-pg-light dark:text-pg-dark">
+              No hay transacciones aún.
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-line-light dark:border-line-dark">
+                    <th className="text-left py-3 px-2 text-sm font-semibold text-titles-light dark:text-titles-dark">Divisa</th>
+                    <th className="text-left py-3 px-2 text-sm font-semibold text-titles-light dark:text-titles-dark">Monto</th>
+                    <th className="text-left py-3 px-2 text-sm font-semibold text-titles-light dark:text-titles-dark">Descripción</th>
+                    <th className="text-left py-3 px-2 text-sm font-semibold text-titles-light dark:text-titles-dark">Nombre</th>
+                    <th className="text-left py-3 px-2 text-sm font-semibold text-titles-light dark:text-titles-dark">Tipo de documento</th>
+                    <th className="text-left py-3 px-2 text-sm font-semibold text-titles-light dark:text-titles-dark">Fecha de la transacción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {transactions.map((txn) => (
+                    <tr 
+                      key={txn.id} 
+                      className="border-b border-line-light dark:border-line-dark hover:bg-bgPpal-light dark:hover:bg-bgPpal-dark transition-colors"
+                    >
+                      <td className="py-4 px-2 text-pg-light dark:text-pg-dark">{txn.currency}</td>
+                      <td className="py-4 px-2 text-pg-light dark:text-pg-dark">${formatAmount(txn.amount)}</td>
+                      <td className="py-4 px-2 text-pg-light dark:text-pg-dark">{txn.description || '-'}</td>
+                      <td className="py-4 px-2 text-pg-light dark:text-pg-dark">{txn.full_name || '-'}</td>
+                      <td className="py-4 px-2 text-pg-light dark:text-pg-dark">{getDocumentTypeName(txn.document_type)}</td>
+                      <td className="py-4 px-2 text-pg-light dark:text-pg-dark">{formatDate(txn.created_at)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </main>
     </div>

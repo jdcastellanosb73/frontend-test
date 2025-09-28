@@ -3,6 +3,7 @@ import { Eye, EyeOff } from 'lucide-react';
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
+    username: '',
     email: '',
     fullName: '',
     password: '',
@@ -18,78 +19,80 @@ export default function SignupPage() {
     if (error) setError('');
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  setError('');
-  setSuccess(false);
-
-  const username = formData.fullName.trim().split(' ')[0].toLowerCase() || 'user';
-
-  try {
-    // Paso 1: Registrar al usuario
-    const registerResponse = await fetch('https://backend-test-qawh.onrender.com/api/auth/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username,
-        email: formData.email,
-        full_name: formData.fullName,
-        password: formData.password,
-      }),
-    });
-
-    const registerData = await registerResponse.json();
-
-    if (!registerResponse.ok) {
-      setError(registerData.detail || registerData.message || 'Error al crear la cuenta. Intenta de nuevo.');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.username || !formData.email || !formData.fullName || !formData.password) {
+      setError('Por favor completa todos los campos.');
       return;
     }
 
-    // Paso 2: Iniciar sesión automáticamente
-    const loginResponse = await fetch('https://backend-test-qawh.onrender.com/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username,
-        password: formData.password,
-      }),
-    });
+    setLoading(true);
+    setError('');
+    setSuccess(false);
 
-    const loginData = await loginResponse.json();
+    try {
+      const registerResponse = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: formData.username,
+          email: formData.email,
+          full_name: formData.fullName,
+          password: formData.password,
+        }),
+      });
 
-    if (!loginResponse.ok) {
-      setError(loginData.detail || loginData.message || 'Error al iniciar sesión automáticamente.');
-      return;
+      const registerData = await registerResponse.json();
+
+      if (!registerResponse.ok) {
+        const errorMsg = registerData.detail || registerData.message || 'Error al crear la cuenta.';
+        setError(errorMsg);
+        return;
+      }
+
+      const loginResponse = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          emailOrUsername: formData.username,
+          password: formData.password,
+        }),
+      });
+
+      const loginData = await loginResponse.json();
+
+      if (!loginResponse.ok) {
+        const errorMsg = loginData.detail || loginData.message || 'Error al iniciar sesión.';
+        setError(errorMsg);
+        return;
+      }
+
+      if (loginData.token && loginData.user) {
+        localStorage.setItem('access_token', loginData.token);
+        localStorage.setItem('user', JSON.stringify(loginData.user));
+        setSuccess(true);
+
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 1500);
+      } else {
+        setError('Respuesta inválida del servidor.');
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      setError('Error de conexión. Verifica tu red.');
+    } finally {
+      setLoading(false);
     }
-
-    // Paso 3: Guardar token y redirigir
-    if (loginData.access_token) {
-      localStorage.setItem('access_token', loginData.access_token);
-      setSuccess(true);
-      
-      // Redirigir después de un breve delay
-      setTimeout(() => {
-        window.location.href = '/dashboard'; // o '/home', según tu app
-      }, 1500);
-    } else {
-      setError('No se recibió un token de autenticación.');
-    }
-  } catch (err) {
-    console.error('Error en el proceso de registro/login:', err);
-    setError('Error de conexión. Verifica tu red.');
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50/30 flex">
-      {/* Panel izquierdo - Información (estructura exacta solicitada) */}
+      {/* Panel izquierdo - Información institucional */}
       <div className="hidden lg:flex lg:w-1/2 bg-white relative overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-r from-purple-600 to-pink-500 transform -skew-y-1 origin-bottom-left"></div>
@@ -97,29 +100,37 @@ const handleSubmit = async (e) => {
         </div>
 
         <div className="relative z-10 flex flex-col justify-center px-12 py-12 w-full">
-          {/* Logo */}
-          <div className="logo mb-16">
+          <div className="logo mb-8">
             <img
               src="/crosspay-solutions-logo-color.svg"
-              alt="Crosspay"
-              className="h-8 w-auto"
+              alt="Crosspay Solutions"
+              className="h-10 w-auto"
             />
           </div>
 
-          {/* Features */}
-          <div className="features space-y-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 leading-tight">
+              Tu Alianza con el Futuro de los <span className="text-purple-600">Pagos Globales</span>
+            </h1>
+            <p className="text-gray-600 mt-4 leading-relaxed">
+              Con el respaldo de nuestros servicios FX, su empresa puede elevar la eficiencia de sus operaciones internacionales. 
+              Contáctenos para recibir una evaluación profesional y descubrir cómo potenciar la presencia de tu empresa en el mercado global.
+            </p>
+          </div>
+
+          <div className="features space-y-6">
             {[
               {
-                title: "Get started quickly",
-                description: "Integrate with developer-friendly APIs or choose low-code or pre-built solutions."
+                title: "Servicios FX",
+                description: "Protege tus márgenes con cobertura cambiaria inteligente y conversión en tiempo real."
               },
               {
-                title: "Support any business model",
-                description: "E-commerce, subscriptions, SaaS platforms, marketplaces, and more—all within a unified platform."
+                title: "Pagos Globales",
+                description: "Envía y recibe pagos en múltiples divisas con tasas competitivas y liquidación rápida."
               },
               {
-                title: "Join millions of businesses",
-                description: "Crosspay is trusted by ambitious startups and enterprises of every size."
+                title: "Cumplimiento Global",
+                description: "Operamos bajo los más altos estándares regulatorios en cada jurisdicción."
               }
             ].map((feature, index) => (
               <div key={index} className="feature-item flex gap-4">
@@ -129,32 +140,34 @@ const handleSubmit = async (e) => {
                   </svg>
                 </div>
                 <div className="feature-content">
-                  <h3 className="font-semibold text-gray-900 mb-2">{feature.title}</h3>
-                  <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+                  <h3 className="font-semibold text-gray-900 mb-1">{feature.title}</h3>
+                  <p className="text-gray-600 text-sm">{feature.description}</p>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Footer info */}
-          <div className="footer-info mt-16 pt-8 border-t border-gray-200 flex items-center gap-2 text-sm text-gray-500">
-            <span>© Crosspay Solutions</span>
-            <span>•</span>
-            <a href="https://crosspaysolutions.com/privacy" className="hover:text-purple-600 transition-colors">
-              Privacy & terms
-            </a>
+          <div className="footer-info mt-12 pt-6 border-t border-gray-200">
+            <p className="text-xs text-gray-500">
+              © Crosspay Solutions • 
+              <a href="https://crosspaysolutions.com/privacy" className="ml-1 hover:text-purple-600 transition-colors">
+                Privacy & terms
+              </a>
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Panel derecho - Formulario (sin cambios) */}
+      {/* Panel derecho - Formulario */}
       <div className="flex-1 lg:w-1/2 flex items-center justify-center p-4 sm:p-8">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Create your Crosspay account
+            <h1 className="text-3xl font-bold text-gray-900 mb-3">
+              Crea tu cuenta
             </h1>
-            <p className="text-gray-600">Start accepting payments in minutes</p>
+            <p className="text-gray-600">
+              Únete a la plataforma de pagos globales
+            </p>
           </div>
 
           {error && (
@@ -165,42 +178,56 @@ const handleSubmit = async (e) => {
 
           {success && (
             <div className="mb-6 p-3 bg-green-50 text-green-700 rounded-lg text-sm">
-              Account created successfully! Redirecting...
+              ¡Cuenta creada con éxito! Redirigiendo...
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email
-              </label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition"
-                placeholder="you@example.com"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Full name
+                Nombre completo
               </label>
               <input
                 type="text"
                 value={formData.fullName}
                 onChange={(e) => handleInputChange('fullName', e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition"
-                placeholder="John Doe"
+                placeholder="Juan Pérez"
                 required
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Password
+                Correo electrónico
+              </label>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) => handleInputChange('email', e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition"
+                placeholder="tu@empresa.com"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Nombre de usuario
+              </label>
+              <input
+                type="text"
+                value={formData.username}
+                onChange={(e) => handleInputChange('username', e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition"
+                placeholder="juan_perez"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Contraseña
               </label>
               <div className="relative">
                 <input
@@ -227,22 +254,22 @@ const handleSubmit = async (e) => {
               disabled={loading}
               className="w-full bg-gradient-to-r from-purple-600 to-pink-500 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:from-purple-700 hover:to-pink-600 transition-all duration-300 disabled:opacity-70"
             >
-              {loading ? 'Creating account...' : 'Create account'}
+              {loading ? 'Creando cuenta...' : 'Crear cuenta'}
             </button>
 
-            <div className="relative">
+            <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-gray-50 text-gray-500">or</span>
+                <span className="px-4 bg-white text-gray-500">o</span>
               </div>
             </div>
 
             <p className="text-center text-sm text-gray-600">
-              Already have an account?{" "}
+              ¿Ya tienes una cuenta?{" "}
               <a href="/login" className="text-purple-600 hover:underline font-medium">
-                Sign in
+                Inicia sesión
               </a>
             </p>
           </form>

@@ -8,10 +8,10 @@
     "login": "Sign in"
   },
   "hero": {
-    "title": "Payments for platforms and marketplaces",
-    "description": "Crosspay is the fastest and easiest way to integrate payments into your platform or marketplace. Our APIs allow you to create complete payment experiences, from instant onboarding to global payments.",
+    "title": "Your partnership with the future of global payments",
+    "description": "With the support of our FX services, your company can enhance the efficiency of its international operations. Contact us for a professional assessment and discover how to boost your company's presence in the global market.",
     "ctaStart": "Get started",
-    "ctaContact": "Contact sales"
+    "ctaContact": "Contact us"
   },
   "payment": {
     "method": "Payment method",
@@ -20,28 +20,26 @@
     "cvv": "CVV",
     "cardHolder": "Cardholder name",
     "payButton": "Pay $12.47",
-    "processing": "Processing...",
-    "success": "✓ Payment completed",
     "security": "🔒 Protected with end-to-end encryption"
   },
   "features": {
-    "title": "Everything you need to scale your marketplace",
-    "description": "From small startups to the world's largest platforms, thousands of businesses trust our payment infrastructure.",
-    "instantOnboarding": {
-      "title": "Instant onboarding",
-      "description": "Get sellers up and running in minutes with our streamlined KYC process."
+    "title": "Financial solutions for global growth",
+    "description": "We design tailored solutions for your international goals, powered by cutting-edge technology and regulatory compliance.",
+    "globalPayments": {
+      "title": "Global payments",
+      "description": "Send and receive payments in multiple currencies with competitive rates and fast settlement."
     },
-    "globalPayouts": {
-      "title": "Global payouts",
-      "description": "Pay sellers in 40+ countries with local payment methods."
+    "fxServices": {
+      "title": "FX services",
+      "description": "Protect your margins with smart currency hedging and real-time conversion."
     },
-    "revenueSharing": {
-      "title": "Revenue sharing",
-      "description": "Automatically split payments and collect your platform fees."
+    "compliance": {
+      "title": "Global compliance",
+      "description": "We operate under the highest regulatory standards in every jurisdiction."
     },
-    "riskManagement": {
-      "title": "Risk management",
-      "description": "Advanced fraud detection and compliance built-in."
+    "dedicatedSupport": {
+      "title": "Dedicated support",
+      "description": "A specialized team guides you through every step of your international expansion."
     }
   }
 }
