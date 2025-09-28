@@ -14,24 +14,6 @@ Este proyecto es una **prueba técnica de frontend** desarrollada con **React + 
 
 ---
 
-##  Estructura del proyecto
-├── public/ # Archivos estáticos
-├── src/ # Código fuente principal
-│ ├── components/ # Componentes reutilizables de UI
-│ ├── pages/ # Vistas o páginas principales
-│ ├── assets/ # Recursos (imágenes, íconos, etc.)
-│ └── main.jsx # Punto de entrada de la aplicación
-├── .gitignore
-├── eslint.config.js # Configuración de ESLint
-├── package.json # Dependencias y scripts del proyecto
-├── postcss.config.js # Configuración de PostCSS
-├── tailwind.config.js # Configuración de Tailwind
-├── vite.config.js # Configuración del bundler
-└── README.md
-
-
----
-
 ##  Instalación y ejecución
 
 Sigue estos pasos para ejecutar el proyecto localmente:
@@ -67,3 +49,19 @@ Sigue estos pasos para ejecutar el proyecto localmente:
 -  **Código limpio y consistente** validado con ESLint.  
 -  **Estructura escalable** lista para añadir nuevas funcionalidades.  
 -  Configuración optimizada para **desarrollo y despliegue ágil**.
+
+##  Estructura del proyecto
+```
+├── public/ # Archivos estáticos
+├── src/ # Código fuente principal
+│ ├── components/ # Componentes reutilizables de UI
+│ ├── pages/ # Vistas o páginas principales
+│ ├── assets/ # Recursos (imágenes, íconos, etc.)
+│ └── main.jsx # Punto de entrada de la aplicación
+├── .gitignore
+├── eslint.config.js # Configuración de ESLint
+├── package.json # Dependencias y scripts del proyecto
+├── postcss.config.js # Configuración de PostCSS
+├── tailwind.config.js # Configuración de Tailwind
+├── vite.config.js # Configuración del bundler
+└── README.md```
