@@ -4,13 +4,14 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-  "dev": "vite",
-  "build": "vite build",
-  "lint": "eslint .",
-  "preview": "vite preview --host 0.0.0.0 --port $PORT",
-  "start": "serve -s dist -l $PORT"
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview --host 0.0.0.0 --port $PORT",
+    "start": "serve -s dist -l $PORT"
   },
   "dependencies": {
+    "serve": "^14.2.5",
     "@hookform/resolvers": "^5.2.2",
     "axios": "^1.12.2",
     "framer-motion": "^12.23.22",
@@ -20,7 +21,6 @@
     "react-dom": "^19.1.1",
     "react-hook-form": "^7.63.0",
     "react-router-dom": "^7.9.3",
-    "serve": "^14.2.5",
     "yup": "^1.7.1"
   },
   "devDependencies": {
