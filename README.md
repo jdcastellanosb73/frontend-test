@@ -15,6 +15,7 @@ Este proyecto es una **prueba técnica de frontend** desarrollada con **React + 
 ---
 
 ##  Estructura del proyecto
+```
 ├── public/ # Archivos estáticos
 ├── src/ # Código fuente principal
 │ ├── components/ # Componentes reutilizables de UI
@@ -27,7 +28,7 @@ Este proyecto es una **prueba técnica de frontend** desarrollada con **React + 
 ├── postcss.config.js # Configuración de PostCSS
 ├── tailwind.config.js # Configuración de Tailwind
 ├── vite.config.js # Configuración del bundler
-└── README.md
+└── README.md```
 
 
 ---
