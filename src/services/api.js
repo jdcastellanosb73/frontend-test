@@ -1,4 +1,4 @@
-export const API_BASE_URL = 'https://backend-test-qawh.onrender.com';
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 export const getAuthToken = () => {
   return localStorage.getItem('access_token');
@@ -6,7 +6,7 @@ export const getAuthToken = () => {
 
 export const authFetch = async (url, options = {}) => {
   const token = getAuthToken();
-  
+
   const config = {
     ...options,
     headers: {

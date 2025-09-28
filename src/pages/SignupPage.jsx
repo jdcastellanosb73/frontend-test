@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL;
+
 export default function SignupPage() {
   const { t } = useLanguage();
   const [formData, setFormData] = useState({
@@ -33,7 +35,7 @@ export default function SignupPage() {
     setSuccess(false);
 
     try {
-      const registerResponse = await fetch('/api/auth/register', {
+      const registerResponse = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -54,7 +56,7 @@ export default function SignupPage() {
         return;
       }
 
-      const loginResponse = await fetch('/api/auth/login', {
+      const loginResponse = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
