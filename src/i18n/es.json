@@ -1,0 +1,47 @@
+{
+  "header": {
+    "products": "Productos",
+    "solutions": "Soluciones",
+    "developers": "Desarrolladores",
+    "resources": "Recursos",
+    "pricing": "Precios",
+    "login": "Iniciar sesión"
+  },
+  "hero": {
+    "title": "Pagos para plataformas y marketplaces",
+    "description": "Crosspay es la forma más rápida y sencilla de integrar pagos en tu plataforma o marketplace. Nuestras APIs te permiten crear experiencias de pago completas, desde onboarding instantáneo hasta pagos globales.",
+    "ctaStart": "Empezar ahora",
+    "ctaContact": "Contactar ventas"
+  },
+  "payment": {
+    "method": "Método de pago",
+    "cardNumber": "Número de tarjeta",
+    "expiry": "Fecha de vencimiento",
+    "cvv": "CVV",
+    "cardHolder": "Nombre del titular",
+    "payButton": "Pagar $12.47",
+    "processing": "Procesando...",
+    "success": "✓ Pago completado",
+    "security": "🔒 Protegido con encriptación de extremo a extremo"
+  },
+  "features": {
+    "title": "Todo lo que necesitas para escalar tu marketplace",
+    "description": "Desde pequeñas startups hasta las plataformas más grandes del mundo, miles de empresas confían en nuestra infraestructura de pagos.",
+    "instantOnboarding": {
+      "title": "Onboarding instantáneo",
+      "description": "Ten vendedores operativos en minutos con nuestro proceso KYC simplificado."
+    },
+    "globalPayouts": {
+      "title": "Pagos globales",
+      "description": "Paga a vendedores en más de 40 países con métodos de pago locales."
+    },
+    "revenueSharing": {
+      "title": "Distribución de ingresos",
+      "description": "Divide pagos automáticamente y cobra tus comisiones de plataforma."
+    },
+    "riskManagement": {
+      "title": "Gestión de riesgos",
+      "description": "Detección avanzada de fraude y cumplimiento integrado."
+    }
+  }
+}
