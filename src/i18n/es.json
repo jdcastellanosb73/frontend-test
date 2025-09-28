@@ -1,14 +1,13 @@
 {
   "header": {
-    "products": "Productos",
-    "solutions": "Soluciones",
+    "dashboard": "Panel Administrativo",
+    "payments": "Pagos",
     "developers": "Desarrolladores",
-    "resources": "Recursos",
-    "pricing": "Precios",
+    "settings": "Configuración",
     "login": "Iniciar sesión"
   },
   "hero": {
-    "title": "Tu alianza con el futuro de los pagos globales",
+    "title": "Tu Alianza con el Futuro de los Pagos Globales",
     "description": "Con el respaldo de nuestros servicios FX, su empresa puede elevar la eficiencia de sus operaciones internacionales. Contáctenos para recibir una evaluación profesional y descubrir cómo potenciar la presencia de tu empresa en el mercado global.",
     "ctaStart": "Empezar ahora",
     "ctaContact": "Contáctanos"
@@ -41,5 +40,106 @@
       "title": "Soporte dedicado",
       "description": "Un equipo especializado te acompaña en cada paso de tu expansión internacional."
     }
+  },
+  "signup": {
+    "title": "Crea tu cuenta",
+    "subtitle": "Únete a la plataforma de pagos globales",
+    "fullName": "Nombre completo",
+    "email": "Correo electrónico",
+    "username": "Nombre de usuario",
+    "password": "Contraseña",
+    "createAccount": "Crear cuenta",
+    "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+    "signIn": "Inicia sesión",
+    "or": "o",
+    "creatingAccount": "Creando cuenta...",
+    "success": "¡Cuenta creada con éxito! Redirigiendo...",
+    "error": {
+      "required": "Por favor completa todos los campos.",
+      "invalidResponse": "Respuesta inválida del servidor.",
+      "connection": "Error de conexión. Verifica tu red."
+    }
+  },
+  "login": {
+    "title": "Inicia sesión en tu cuenta",
+    "subtitle": "Accede a tu panel de pagos globales",
+    "usernameOrEmail": "Usuario o correo electrónico",
+    "password": "Contraseña",
+    "staySignedIn": "Mantener sesión activa por una semana",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "continue": "Continuar",
+    "signingIn": "Iniciando sesión...",
+    "noAccount": "¿No tienes una cuenta?",
+    "signUp": "Regístrate",
+    "securityTip": "Consejo de seguridad",
+    "sso": "Usar inicio de sesión único (SSO)",
+    "error": {
+      "credentials": "Credenciales incorrectas. Intenta de nuevo.",
+      "connection": "Error de conexión. Verifica tu red."
+    }
+  },
+  "dashboard": {
+    "welcome": "Bienvenido, {username} 👋",
+    "summary": "Aquí está tu resumen financiero.",
+    "totalSpent": "Total gastado en {month}",
+    "topCategory": "Top categoría",
+    "totalWithdrawals": "Total gastado",
+    "transactions": "Transacciones",
+    "createNew": "Crear nueva",
+    "noTransactions": "No hay transacciones aún.",
+    "loading": "Cargando...",
+    "headers": {
+      "currency": "Divisa",
+      "amount": "Monto",
+      "description": "Descripción",
+      "name": "Nombre",
+      "documentType": "Tipo de documento",
+      "date": "Fecha de la transacción"
+    }
+  },
+  "cards": {
+    "title": "Mis tarjetas",
+    "subtitle": "Gestiona tus métodos de pago guardados",
+    "addCard": "Añadir nueva tarjeta",
+    "savedCards": "Tarjetas guardadas ({count})",
+    "noCards": "No tienes tarjetas guardadas aún.",
+    "deleteConfirm": "¿Estás seguro de eliminar esta tarjeta?",
+    "adding": "Añadiendo...",
+    "success": "¡Tarjeta añadida exitosamente!",
+    "cardNumber": "Número de tarjeta",
+    "expiryDate": "Fecha de vencimiento",
+    "cvv": "CVV",
+    "cardholderName": "Nombre del titular",
+    "saveCard": "Guardar esta tarjeta para futuros pagos",
+    "setDefault": "Establecer como tarjeta por defecto"
+  },
+  "transactions": {
+    "title": "Hacer transacción",
+    "currency": "Divisa",
+    "amount": "Monto",
+    "description": "Descripción de la transacción",
+    "fullName": "Nombre completo",
+    "documentType": "Tipo de documento",
+    "cardNumber": "Número de tarjeta",
+    "expiryDate": "Fecha de vencimiento",
+    "cvv": "CVV",
+    "cardholderName": "Nombre del titular de la tarjeta",
+    "processing": "Procesando transacción...",
+    "success": "¡Transacción realizada exitosamente!",
+    "error": {
+      "required": "El {field} es requerido",
+      "invalidCard": "Número de tarjeta inválido",
+      "invalidExpiry": "Fecha de vencimiento inválida",
+      "invalidCvv": "CVV inválido",
+      "connection": "Error de conexión. Verifica tu red."
+    }
+  },
+  "documentTypes": {
+    "CC": "Cédula de Ciudadanía",
+    "PP": "Pasaporte"
+  },
+  "currencies": {
+    "COP": "Peso Colombiano",
+    "USD": "Dólar Americano"
   }
 }

@@ -1,16 +1,69 @@
-# React + Vite
+# Frontend Test - Crosspay Solutions
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este proyecto es una **prueba técnica de frontend** desarrollada con **React + Vite**. Su objetivo es evaluar habilidades en el desarrollo de interfaces modernas, componentes reutilizables, estilos responsivos y buenas prácticas de código.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+##  Tecnologías utilizadas
 
-## React Compiler
+-  **React** – Librería para la construcción de interfaces de usuario.  
+-  **Vite** – Bundler y servidor de desarrollo rápido.  
+-  **Tailwind CSS** – Framework de utilidades CSS para estilos responsivos.  
+-  **ESLint** – Herramienta de análisis estático para mantener la calidad del código.  
+-  **PostCSS** – Procesador de CSS para optimizar estilos.
 
-The React Compiler is not enabled on this template. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+##  Estructura del proyecto
+├── public/ # Archivos estáticos
+├── src/ # Código fuente principal
+│ ├── components/ # Componentes reutilizables de UI
+│ ├── pages/ # Vistas o páginas principales
+│ ├── assets/ # Recursos (imágenes, íconos, etc.)
+│ └── main.jsx # Punto de entrada de la aplicación
+├── .gitignore
+├── eslint.config.js # Configuración de ESLint
+├── package.json # Dependencias y scripts del proyecto
+├── postcss.config.js # Configuración de PostCSS
+├── tailwind.config.js # Configuración de Tailwind
+├── vite.config.js # Configuración del bundler
+└── README.md
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
+---
+
+##  Instalación y ejecución
+
+Sigue estos pasos para ejecutar el proyecto localmente:
+
+
+1. **Clona el repositorio**
+   ```bash
+   git clone https://github.com/jdcastellanosb73/frontend-test.git
+   cd frontend-test
+2. **Instala dependencias**
+   ```bash
+   npm install
+2. **correr el repositorio**
+   ```bash
+   npm run dev
+
+   ## 🛠️ Scripts disponibles
+
+| Script | Descripción |
+|--------|-------------|
+| `npm run dev` | Inicia el entorno de desarrollo con **hot reload**. |
+| `npm run build` | Genera una **build optimizada para producción**. |
+| `npm run preview` | Sirve la build de producción de forma local. |
+| `npm run lint` | Ejecuta **ESLint** para analizar y validar el código. |
+
+---
+
+##  Características principales
+
+-  **Arquitectura modular** basada en componentes reutilizables.  
+-  **Estilos responsivos** creados con Tailwind CSS.  
+-  **Entorno de desarrollo rápido** gracias a Vite.  
+-  **Código limpio y consistente** validado con ESLint.  
+-  **Estructura escalable** lista para añadir nuevas funcionalidades.  
+-  Configuración optimizada para **desarrollo y despliegue ágil**.

@@ -1,17 +1,18 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function Sidebar() {
+  const { t } = useLanguage();
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    // Cargar datos del usuario desde localStorage
     const userData = localStorage.getItem('user');
     if (userData) {
       setUser(JSON.parse(userData));
     } else {
-      // Si no hay usuario, redirigir al login
       navigate('/login');
     }
   }, [navigate]);
@@ -22,41 +23,42 @@ export default function Sidebar() {
     navigate('/login');
   };
 
-  const menuItems = [
-    { name: 'Dashboard', path: '/dashboard' },
-    { name: 'pagos', path: '/transactions' },
-    { name: 'Tarjetas', path: '/cards' },
-    { name: 'Configuración', path: '/settings' },
-  ];
+const menuItems = [
+  { name: t('header.dashboard'), path: '/dashboard' },
+  { name: t('header.payments'), path: '/transactions' },
+  { name: t('cards.title'), path: '/cards' },
+  { name: t('header.settings'), path: '/settings' },
+];
 
   return (
     <div className="w-64 bg-bgSec-light dark:bg-bgSec-dark min-h-screen border-r border-line-light dark:border-line-dark flex flex-col">
-      {/* Logo */}
       <div className="p-6 border-b border-line-light dark:border-line-dark">
         <div className="flex items-center gap-3">
           <img
             src="/crosspay-solutions-logo-color.svg"
-            alt="Crosspay"
+            alt="Crosspay Solutions"
             className="h-8 w-auto"
           />
         </div>
       </div>
 
-      {/* Navegación */}
       <nav className="flex-1 p-4 space-y-2">
         {menuItems.map((item) => (
           <a
             key={item.path}
             href={item.path}
-            className="flex items-center gap-3 px-4 py-3 rounded-lg text-titles-light dark:text-titles-dark hover:bg-bgPpal-light dark:hover:bg-bgPpal-dark transition-colors"
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+              location.pathname === item.path
+                ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-medium'
+                : 'text-titles-light dark:text-titles-dark hover:bg-bgPpal-light dark:hover:bg-bgPpal-dark'
+            }`}
           >
             <span className="text-xl">{item.icon}</span>
-            <span className="font-medium">{item.name}</span>
+            <span>{item.name}</span>
           </a>
         ))}
       </nav>
 
-      {/* Perfil de usuario */}
       {user && (
         <div className="p-4 border-t border-line-light dark:border-line-dark">
           <div className="flex items-center justify-between">
@@ -74,7 +76,7 @@ export default function Sidebar() {
             <button
               onClick={handleLogout}
               className="text-pg-light dark:text-pg-dark hover:text-red-500 transition-colors"
-              title="Cerrar sesión"
+              title={t('header.login')}
             >
               🚪
             </button>

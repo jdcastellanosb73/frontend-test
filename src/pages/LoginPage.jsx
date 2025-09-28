@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { Eye, EyeOff, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function LoginPage() {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
-    username: '', 
+    username: '',
     password: '',
     staySignedIn: true
   });
@@ -21,7 +23,7 @@ export default function LoginPage() {
 
   const handleSubmit = async () => {
     if (!formData.username || !formData.password) {
-      setError('Por favor ingresa tu usuario o correo y contraseña.');
+      setError(t('login.error.credentials'));
       return;
     }
 
@@ -35,7 +37,7 @@ export default function LoginPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          emailOrUsername: formData.username, 
+          emailOrUsername: formData.username,
           password: formData.password,
         }),
       });
@@ -52,11 +54,11 @@ export default function LoginPage() {
 
         navigate('/dashboard');
       } else {
-        setError(data.message || 'Credenciales incorrectas. Intenta de nuevo.');
+        setError(data.message || t('login.error.credentials'));
       }
     } catch (err) {
       console.error('Error de login:', err);
-      setError('Error de conexión. Verifica tu red.');
+      setError(t('login.error.connection'));
     } finally {
       setIsLoading(false);
     }
@@ -70,17 +72,14 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-bgPpal-light dark:bg-bgPpal-dark flex items-center justify-center relative overflow-hidden">
-      {/* Fondo decorativo */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute bottom-0 left-0 w-64 h-32 bg-gradient-to-r from-purple-600 to-pink-500 transform -skew-y-3 origin-bottom-left opacity-80"></div>
         <div className="absolute bottom-0 left-0 w-48 h-24 bg-gradient-to-r from-purple-500 to-pink-600 transform -skew-y-6 origin-bottom-left opacity-60"></div>
-        
         <div className="absolute top-0 right-0 w-96 h-48 bg-gradient-to-l from-purple-500 to-pink-500 transform skew-y-3 origin-top-right opacity-80"></div>
         <div className="absolute top-0 right-0 w-80 h-32 bg-gradient-to-l from-pink-400 to-purple-400 transform skew-y-6 origin-top-right opacity-60"></div>
       </div>
 
       <div className="relative z-10 w-full max-w-md mx-auto p-6">
-        {/* Logo */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-3 text-2xl font-bold mb-8">
             <img
@@ -91,12 +90,14 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Tarjeta de login */}
         <div className="bg-bgSec-light dark:bg-bgSec-dark rounded-2xl shadow-xl p-8 border border-line-light dark:border-line-dark">
           <div className="text-center mb-8">
             <h1 className="text-2xl font-semibold text-titles-light dark:text-titles-dark mb-2">
-              Inicia sesión en tu cuenta
+              {t('login.title')}
             </h1>
+            <p className="text-pg-light dark:text-pg-dark">
+              {t('login.subtitle')}
+            </p>
           </div>
 
           {error && (
@@ -106,10 +107,9 @@ export default function LoginPage() {
           )}
 
           <div className="space-y-6">
-            {/* Campo de usuario o email */}
             <div>
               <label className="block text-sm font-medium text-titles-light dark:text-titles-dark mb-2">
-                Usuario o correo electrónico
+                {t('login.usernameOrEmail')}
               </label>
               <input
                 type="text"
@@ -123,17 +123,16 @@ export default function LoginPage() {
               />
             </div>
 
-            {/* Contraseña */}
             <div>
               <div className="flex justify-between items-center mb-2">
                 <label className="text-sm font-medium text-titles-light dark:text-titles-dark">
-                  Contraseña
+                  {t('login.password')}
                 </label>
                 <a 
                   href="#" 
                   className="text-sm text-purple-600 hover:text-purple-700 hover:underline transition-colors"
                 >
-                  ¿Olvidaste tu contraseña?
+                  {t('login.forgotPassword')}
                 </a>
               </div>
               
@@ -158,7 +157,6 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Checkbox */}
             <div className="flex items-center gap-3">
               <input
                 type="checkbox"
@@ -168,11 +166,10 @@ export default function LoginPage() {
                 className="w-5 h-5 text-purple-600 border-2 border-purple-300 rounded focus:ring-purple-500 focus:ring-2 bg-bgSec-light dark:bg-bgSec-dark"
               />
               <label htmlFor="staySignedIn" className="text-sm text-titles-light dark:text-titles-dark">
-                Mantener sesión activa por una semana
+                {t('login.staySignedIn')}
               </label>
             </div>
 
-            {/* Botón */}
             <button
               onClick={handleSubmit}
               disabled={isLoading || !formData.username || !formData.password}
@@ -185,10 +182,10 @@ export default function LoginPage() {
               {isLoading ? (
                 <div className="flex items-center justify-center gap-2">
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Iniciando sesión...
+                  {t('login.signingIn')}
                 </div>
               ) : (
-                'Continuar'
+                t('login.continue')
               )}
             </button>
 
@@ -197,29 +194,27 @@ export default function LoginPage() {
                 type="button"
                 className="text-purple-600 hover:text-purple-700 text-sm font-medium hover:underline"
               >
-                Usar inicio de sesión único (SSO)
+                {t('login.sso')}
               </button>
             </div>
           </div>
         </div>
 
-        {/* Enlace a registro */}
         <div className="text-center mt-8">
           <p className="text-sm text-pg-light dark:text-pg-dark">
-            ¿No tienes una cuenta?{" "}
+            {t('login.noAccount')}{" "}
             <a 
               href="/signup"
               className="text-purple-600 hover:text-purple-700 font-medium hover:underline"
             >
-              Regístrate
+              {t('login.signUp')}
             </a>
           </p>
         </div>
 
-        {/* Security tip */}
         <div className="flex items-center justify-center gap-2 mt-6 text-xs text-pg-light dark:text-pg-dark">
           <Shield size={14} />
-          <span>Consejo de seguridad</span>
+          <span>{t('login.securityTip')}</span>
         </div>
       </div>
     </div>

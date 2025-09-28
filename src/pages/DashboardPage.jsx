@@ -1,17 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/layout/Sidebar';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function DashboardPage() {
+  const { t } = useLanguage();
   const [user, setUser] = useState(null);
   const [transactions, setTransactions] = useState([]);
-  const [summary, setSummary] = useState({
-    total_withdrawals: "0.00"
-  });
-  const [statsData, setStatsData] = useState({
-    monthlySpending: [],
-    topCategories: []
-  });
+  const [summary, setSummary] = useState({ total_withdrawals: "0.00" });
+  const [statsData, setStatsData] = useState({ monthlySpending: [], topCategories: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -63,7 +60,7 @@ export default function DashboardPage() {
         setSummary(summaryInfo);
         setStatsData(statsInfo);
       } catch (err) {
-        console.error('Error fetching dashboard data:', err);
+        console.error('Error fetching dashboard ', err);
         setError('Error al cargar los datos del dashboard.');
       } finally {
         setLoading(false);
@@ -76,9 +73,8 @@ export default function DashboardPage() {
   if (!user) return null;
 
   const monthlySpending = statsData.monthlySpending?.[0]?.total || "0.00";
-  const monthName = statsData.monthlySpending?.[0]?.month || "Este mes";
-
-  const topCategory = statsData.topCategories?.[0]?.category || "Sin categoría";
+  const monthName = statsData.monthlySpending?.[0]?.month || t('dashboard.totalSpent').replace('Total gastado en ', '');
+  const topCategory = statsData.topCategories?.[0]?.category || t('dashboard.topCategory');
   const topCategoryTotal = statsData.topCategories?.[0]?.total || "0.00";
 
   const formatAmount = (amount) => {
@@ -89,32 +85,30 @@ export default function DashboardPage() {
     });
   };
 
-
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
     return date.toLocaleDateString('es-CO');
   };
 
-  // Mapeo de tipo de documento
   const getDocumentTypeName = (code) => {
-    const types = { 'CC': 'Cédula de Ciudadanía', 'PP': 'Pasaporte' };
+    const types = { 'CC': t('documentTypes.CC'), 'PP': t('documentTypes.PP') };
     return types[code] || code;
   };
 
   const stats = [
     { 
-      title: `Total gastado en ${monthName}`, 
+      title: t('dashboard.totalSpent').replace('{month}', monthName), 
       value: `$${formatAmount(monthlySpending)}`, 
       change: ''
     },
     { 
-      title: 'Top categoría', 
-      value: topCategory, 
-      change: `$${formatAmount(topCategoryTotal)}`
+      title: t('dashboard.topCategory'), 
+      value: topCategory,
+      change: `$${formatAmount(topCategoryTotal)}` 
     },
     { 
-      title: 'Total gastado', 
+      title: t('dashboard.totalWithdrawals'), 
       value: `$${formatAmount(summary.total_withdrawals)}`, 
       change: ''
     }
@@ -127,14 +121,13 @@ export default function DashboardPage() {
       <main className="flex-1 p-6">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-titles-light dark:text-titles-dark">
-            Bienvenido, {user.username} 👋
+            {t('dashboard.welcome').replace('{username}', user.username)}
           </h1>
           <p className="text-pg-light dark:text-pg-dark mt-2">
-            Aquí está tu resumen financiero.
+            {t('dashboard.summary')}
           </p>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {stats.map((stat, index) => (
             <div 
@@ -155,17 +148,16 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        {/* Transacciones */}
         <div className="bg-bgSec-light dark:bg-bgSec-dark rounded-xl border border-line-light dark:border-line-dark p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold text-titles-light dark:text-titles-dark">
-              Transacciones
+              {t('dashboard.transactions')}
             </h2>
             <button 
               onClick={() => navigate('/transactions')}
               className="text-purple-600 hover:text-purple-700 text-sm font-medium"
             >
-              Crear nueva
+              {t('dashboard.createNew')}
             </button>
           </div>
 
@@ -181,19 +173,31 @@ export default function DashboardPage() {
             </div>
           ) : transactions.length === 0 ? (
             <div className="text-center py-8 text-pg-light dark:text-pg-dark">
-              No hay transacciones aún.
+              {t('dashboard.noTransactions')}
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-line-light dark:border-line-dark">
-                    <th className="text-left py-3 px-2 text-sm font-semibold text-titles-light dark:text-titles-dark">Divisa</th>
-                    <th className="text-left py-3 px-2 text-sm font-semibold text-titles-light dark:text-titles-dark">Monto</th>
-                    <th className="text-left py-3 px-2 text-sm font-semibold text-titles-light dark:text-titles-dark">Descripción</th>
-                    <th className="text-left py-3 px-2 text-sm font-semibold text-titles-light dark:text-titles-dark">Nombre</th>
-                    <th className="text-left py-3 px-2 text-sm font-semibold text-titles-light dark:text-titles-dark">Tipo de documento</th>
-                    <th className="text-left py-3 px-2 text-sm font-semibold text-titles-light dark:text-titles-dark">Fecha de la transacción</th>
+                    <th className="text-left py-3 px-2 text-sm font-semibold text-titles-light dark:text-titles-dark">
+                      {t('dashboard.headers.currency')}
+                    </th>
+                    <th className="text-left py-3 px-2 text-sm font-semibold text-titles-light dark:text-titles-dark">
+                      {t('dashboard.headers.amount')}
+                    </th>
+                    <th className="text-left py-3 px-2 text-sm font-semibold text-titles-light dark:text-titles-dark">
+                      {t('dashboard.headers.description')}
+                    </th>
+                    <th className="text-left py-3 px-2 text-sm font-semibold text-titles-light dark:text-titles-dark">
+                      {t('dashboard.headers.name')}
+                    </th>
+                    <th className="text-left py-3 px-2 text-sm font-semibold text-titles-light dark:text-titles-dark">
+                      {t('dashboard.headers.documentType')}
+                    </th>
+                    <th className="text-left py-3 px-2 text-sm font-semibold text-titles-light dark:text-titles-dark">
+                      {t('dashboard.headers.date')}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>

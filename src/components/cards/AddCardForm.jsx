@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { CreditCard, Calendar, User, Eye, EyeOff, Lock } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
 
 const CardPreview = ({ cardNumber, expiryDate, cardholderName }) => {
   const getCardIcon = (number) => {
@@ -50,6 +51,7 @@ const CardPreview = ({ cardNumber, expiryDate, cardholderName }) => {
 };
 
 export default function AddCardForm({ onAddCard, isAdding }) {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     cardNumber: '',
     expiryDate: '',
@@ -96,16 +98,16 @@ export default function AddCardForm({ onAddCard, isAdding }) {
     const newErrors = {};
     const cleanCard = formData.cardNumber.replace(/\s/g, '');
     
-    if (!cleanCard) newErrors.cardNumber = 'Número de tarjeta requerido';
-    else if (cleanCard.length < 13) newErrors.cardNumber = 'Número de tarjeta inválido';
+    if (!cleanCard) newErrors.cardNumber = t('transactions.error.required').replace('{field}', t('cards.cardNumber'));
+    else if (cleanCard.length < 13) newErrors.cardNumber = t('transactions.error.invalidCard');
     
-    if (!formData.expiryDate) newErrors.expiryDate = 'Fecha de vencimiento requerida';
-    else if (!/^\d{2}\/\d{2}$/.test(formData.expiryDate)) newErrors.expiryDate = 'Formato inválido (MM/AA)';
+    if (!formData.expiryDate) newErrors.expiryDate = t('transactions.error.required').replace('{field}', t('cards.expiryDate'));
+    else if (!/^\d{2}\/\d{2}$/.test(formData.expiryDate)) newErrors.expiryDate = t('transactions.error.invalidExpiry');
     
-    if (!formData.cvv) newErrors.cvv = 'CVV requerido';
-    else if (formData.cvv.length < 3) newErrors.cvv = 'CVV inválido';
+    if (!formData.cvv) newErrors.cvv = t('transactions.error.required').replace('{field}', t('cards.cvv'));
+    else if (formData.cvv.length < 3) newErrors.cvv = t('transactions.error.invalidCvv');
     
-    if (!formData.cardholderName.trim()) newErrors.cardholderName = 'Nombre del titular requerido';
+    if (!formData.cardholderName.trim()) newErrors.cardholderName = t('transactions.error.required').replace('{field}', t('cards.cardholderName'));
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -135,10 +137,9 @@ export default function AddCardForm({ onAddCard, isAdding }) {
   return (
     <div className="bg-bgSec-light dark:bg-bgSec-dark rounded-xl p-6 border border-line-light dark:border-line-dark">
       <h3 className="text-lg font-semibold text-titles-light dark:text-titles-dark mb-6">
-        Añadir nueva tarjeta
+        {t('cards.addCard')}
       </h3>
       
-      {/* Vista previa de la tarjeta */}
       <CardPreview 
         cardNumber={formData.cardNumber}
         expiryDate={formData.expiryDate}
@@ -149,7 +150,7 @@ export default function AddCardForm({ onAddCard, isAdding }) {
         <div>
           <label className="block text-sm font-medium text-pg-light dark:text-pg-dark mb-2">
             <CreditCard size={16} className="inline mr-1" />
-            Número de tarjeta
+            {t('cards.cardNumber')}
           </label>
           <input
             type="text"
@@ -168,7 +169,7 @@ export default function AddCardForm({ onAddCard, isAdding }) {
           <div>
             <label className="block text-sm font-medium text-pg-light dark:text-pg-dark mb-2">
               <Calendar size={16} className="inline mr-1" />
-              Fecha de vencimiento
+              {t('cards.expiryDate')}
             </label>
             <input
               type="text"
@@ -185,7 +186,7 @@ export default function AddCardForm({ onAddCard, isAdding }) {
           
           <div>
             <label className="block text-sm font-medium text-pg-light dark:text-pg-dark mb-2">
-              CVV
+              {t('cards.cvv')}
             </label>
             <div className="relative">
               <input
@@ -213,7 +214,7 @@ export default function AddCardForm({ onAddCard, isAdding }) {
         <div>
           <label className="block text-sm font-medium text-pg-light dark:text-pg-dark mb-2">
             <User size={16} className="inline mr-1" />
-            Nombre del titular
+            {t('cards.cardholderName')}
           </label>
           <input
             type="text"
@@ -232,12 +233,12 @@ export default function AddCardForm({ onAddCard, isAdding }) {
           disabled={isAdding}
           className="w-full bg-gradient-to-r from-purple-600 to-pink-500 text-white py-2 px-4 rounded-lg font-medium hover:from-purple-700 hover:to-pink-600 transition disabled:opacity-70"
         >
-          {isAdding ? 'Añadiendo...' : 'Añadir tarjeta'}
+          {isAdding ? t('cards.adding') : t('cards.addCard')}
         </button>
 
         <div className="flex items-center gap-2 text-xs text-pg-light dark:text-pg-dark mt-2">
           <Lock size={14} />
-          <span>Tus datos están protegidos con encriptación SSL</span>
+          <span>{t('payment.security')}</span>
         </div>
       </form>
     </div>

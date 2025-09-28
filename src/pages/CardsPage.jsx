@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/layout/Sidebar';
 import CardItem from '../components/cards/CardItem';
 import AddCardForm from '../components/cards/AddCardForm';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function CardsPage() {
+  const { t } = useLanguage();
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -73,7 +75,7 @@ export default function CardsPage() {
   };
 
   const handleRemoveCard = async (cardId) => {
-    if (!window.confirm('¿Estás seguro de eliminar esta tarjeta?')) return;
+    if (!window.confirm(t('cards.deleteConfirm'))) return;
     
     try {
       setIsRemoving(cardId);
@@ -99,17 +101,15 @@ export default function CardsPage() {
 
   return (
     <div className="flex min-h-screen bg-bgPpal-light dark:bg-bgPpal-dark">
-      {/* Barra lateral */}
       <Sidebar />
       
-      {/* Contenido principal */}
       <main className="flex-1 p-6">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-titles-light dark:text-titles-dark">
-            Mis tarjetas
+            {t('cards.title')}
           </h1>
           <p className="text-pg-light dark:text-pg-dark mt-2">
-            Gestiona tus métodos de pago guardados
+            {t('cards.subtitle')}
           </p>
         </div>
 
@@ -119,13 +119,11 @@ export default function CardsPage() {
           </div>
         )}
 
-        {/* Formulario de añadir tarjeta */}
         <AddCardForm onAddCard={handleAddCard} isAdding={isAdding} />
 
-        {/* Lista de tarjetas */}
         <div className="mt-8">
           <h2 className="text-lg font-semibold text-titles-light dark:text-titles-dark mb-4">
-            Tarjetas guardadas ({cards.length})
+            {t('cards.savedCards').replace('{count}', cards.length)}
           </h2>
           
           {loading ? (
@@ -134,7 +132,7 @@ export default function CardsPage() {
             </div>
           ) : cards.length === 0 ? (
             <div className="text-center py-8 text-pg-light dark:text-pg-dark">
-              No tienes tarjetas guardadas aún.
+              {t('cards.noCards')}
             </div>
           ) : (
             <div className="grid gap-4">

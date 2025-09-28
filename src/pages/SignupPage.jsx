@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function SignupPage() {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -22,7 +24,7 @@ export default function SignupPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.username || !formData.email || !formData.fullName || !formData.password) {
-      setError('Por favor completa todos los campos.');
+      setError(t('signup.error.required'));
       return;
     }
 
@@ -47,7 +49,7 @@ export default function SignupPage() {
       const registerData = await registerResponse.json();
 
       if (!registerResponse.ok) {
-        const errorMsg = registerData.detail || registerData.message || 'Error al crear la cuenta.';
+        const errorMsg = registerData.detail || registerData.message || t('signup.error.invalidResponse');
         setError(errorMsg);
         return;
       }
@@ -66,7 +68,7 @@ export default function SignupPage() {
       const loginData = await loginResponse.json();
 
       if (!loginResponse.ok) {
-        const errorMsg = loginData.detail || loginData.message || 'Error al iniciar sesión.';
+        const errorMsg = loginData.detail || loginData.message || t('login.error.credentials');
         setError(errorMsg);
         return;
       }
@@ -80,11 +82,11 @@ export default function SignupPage() {
           window.location.href = '/dashboard';
         }, 1500);
       } else {
-        setError('Respuesta inválida del servidor.');
+        setError(t('signup.error.invalidResponse'));
       }
     } catch (err) {
       console.error('Error:', err);
-      setError('Error de conexión. Verifica tu red.');
+      setError(t('signup.error.connection'));
     } finally {
       setLoading(false);
     }
@@ -92,7 +94,6 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50/30 flex">
-      {/* Panel izquierdo - Información institucional */}
       <div className="hidden lg:flex lg:w-1/2 bg-white relative overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-r from-purple-600 to-pink-500 transform -skew-y-1 origin-bottom-left"></div>
@@ -110,28 +111,18 @@ export default function SignupPage() {
 
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 leading-tight">
-              Tu Alianza con el Futuro de los <span className="text-purple-600">Pagos Globales</span>
+              {t('hero.title')}
             </h1>
             <p className="text-gray-600 mt-4 leading-relaxed">
-              Con el respaldo de nuestros servicios FX, su empresa puede elevar la eficiencia de sus operaciones internacionales. 
-              Contáctenos para recibir una evaluación profesional y descubrir cómo potenciar la presencia de tu empresa en el mercado global.
+              {t('hero.description')}
             </p>
           </div>
 
           <div className="features space-y-6">
             {[
-              {
-                title: "Servicios FX",
-                description: "Protege tus márgenes con cobertura cambiaria inteligente y conversión en tiempo real."
-              },
-              {
-                title: "Pagos Globales",
-                description: "Envía y recibe pagos en múltiples divisas con tasas competitivas y liquidación rápida."
-              },
-              {
-                title: "Cumplimiento Global",
-                description: "Operamos bajo los más altos estándares regulatorios en cada jurisdicción."
-              }
+              { title: t('features.fxServices.title'), description: t('features.fxServices.description') },
+              { title: t('features.globalPayments.title'), description: t('features.globalPayments.description') },
+              { title: t('features.compliance.title'), description: t('features.compliance.description') }
             ].map((feature, index) => (
               <div key={index} className="feature-item flex gap-4">
                 <div className="feature-icon flex-shrink-0 w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
@@ -151,22 +142,21 @@ export default function SignupPage() {
             <p className="text-xs text-gray-500">
               © Crosspay Solutions • 
               <a href="https://crosspaysolutions.com/privacy" className="ml-1 hover:text-purple-600 transition-colors">
-                Privacy & terms
+                {t('header.pricing')}
               </a>
             </p>
           </div>
         </div>
       </div>
 
-      {/* Panel derecho - Formulario */}
       <div className="flex-1 lg:w-1/2 flex items-center justify-center p-4 sm:p-8">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-3">
-              Crea tu cuenta
+              {t('signup.title')}
             </h1>
             <p className="text-gray-600">
-              Únete a la plataforma de pagos globales
+              {t('signup.subtitle')}
             </p>
           </div>
 
@@ -178,14 +168,14 @@ export default function SignupPage() {
 
           {success && (
             <div className="mb-6 p-3 bg-green-50 text-green-700 rounded-lg text-sm">
-              ¡Cuenta creada con éxito! Redirigiendo...
+              {t('signup.success')}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Nombre completo
+                {t('signup.fullName')}
               </label>
               <input
                 type="text"
@@ -199,7 +189,7 @@ export default function SignupPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Correo electrónico
+                {t('signup.email')}
               </label>
               <input
                 type="email"
@@ -213,7 +203,7 @@ export default function SignupPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Nombre de usuario
+                {t('signup.username')}
               </label>
               <input
                 type="text"
@@ -227,7 +217,7 @@ export default function SignupPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Contraseña
+                {t('signup.password')}
               </label>
               <div className="relative">
                 <input
@@ -254,7 +244,7 @@ export default function SignupPage() {
               disabled={loading}
               className="w-full bg-gradient-to-r from-purple-600 to-pink-500 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:from-purple-700 hover:to-pink-600 transition-all duration-300 disabled:opacity-70"
             >
-              {loading ? 'Creando cuenta...' : 'Crear cuenta'}
+              {loading ? t('signup.creatingAccount') : t('signup.createAccount')}
             </button>
 
             <div className="relative my-6">
@@ -262,14 +252,14 @@ export default function SignupPage() {
                 <div className="w-full border-t border-gray-200"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-gray-500">o</span>
+                <span className="px-4 bg-white text-gray-500">{t('signup.or')}</span>
               </div>
             </div>
 
             <p className="text-center text-sm text-gray-600">
-              ¿Ya tienes una cuenta?{" "}
+              {t('signup.alreadyHaveAccount')}{" "}
               <a href="/login" className="text-purple-600 hover:underline font-medium">
-                Inicia sesión
+                {t('signup.signIn')}
               </a>
             </p>
           </form>

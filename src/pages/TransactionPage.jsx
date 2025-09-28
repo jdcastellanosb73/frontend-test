@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Lock, CreditCard, User, FileText, DollarSign, Calendar, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import Sidebar from '../components/layout/Sidebar'; // 👈 Importamos el Sidebar
+import Sidebar from '../components/layout/Sidebar';
+import { useLanguage } from '../context/LanguageContext';
 
-const TransactionPage = () => {
+export default function TransactionPage() {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     currency: 'COP',
     amount: '',
@@ -29,13 +31,13 @@ const TransactionPage = () => {
   }, [navigate]);
 
   const currencies = [
-    { code: 'COP', symbol: '$', name: 'Peso Colombiano' },
-    { code: 'USD', symbol: '$', name: 'Dólar Americano' }
+    { code: 'COP', symbol: '$', name: t('currencies.COP') },
+    { code: 'USD', symbol: '$', name: t('currencies.USD') }
   ];
 
   const documentTypes = [
-    { code: 'CC', name: 'Cédula de Ciudadanía' },
-    { code: 'PP', name: 'Pasaporte' }
+    { code: 'CC', name: t('documentTypes.CC') },
+    { code: 'PP', name: t('documentTypes.PP') }
   ];
 
   const formatCardNumber = (value) => {
@@ -97,14 +99,14 @@ const TransactionPage = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.amount) newErrors.amount = 'El monto es requerido';
-    if (!formData.description.trim()) newErrors.description = 'La descripción es requerida';
-    if (!formData.customerName.trim()) newErrors.customerName = 'El nombre es requerido';
-    if (!formData.cardNumber.replace(/\s/g, '')) newErrors.cardNumber = 'El número de tarjeta es requerido';
-    if (formData.cardNumber.replace(/\s/g, '').length < 13) newErrors.cardNumber = 'Número de tarjeta inválido';
-    if (!formData.expiryDate || formData.expiryDate.length < 5) newErrors.expiryDate = 'La fecha de vencimiento es requerida';
-    if (!formData.cvv) newErrors.cvv = 'El CVV es requerido';
-    if (!formData.cardholderName.trim()) newErrors.cardholderName = 'El nombre del titular es requerido';
+    if (!formData.amount) newErrors.amount = t('transactions.error.required').replace('{field}', t('transactions.amount').toLowerCase());
+    if (!formData.description.trim()) newErrors.description = t('transactions.error.required').replace('{field}', t('transactions.description').toLowerCase());
+    if (!formData.customerName.trim()) newErrors.customerName = t('transactions.error.required').replace('{field}', t('transactions.fullName').toLowerCase());
+    if (!formData.cardNumber.replace(/\s/g, '')) newErrors.cardNumber = t('transactions.error.required').replace('{field}', t('transactions.cardNumber').toLowerCase());
+    if (formData.cardNumber.replace(/\s/g, '').length < 13) newErrors.cardNumber = t('transactions.error.invalidCard');
+    if (!formData.expiryDate || formData.expiryDate.length < 5) newErrors.expiryDate = t('transactions.error.required').replace('{field}', t('transactions.expiryDate').toLowerCase());
+    if (!formData.cvv) newErrors.cvv = t('transactions.error.required').replace('{field}', t('transactions.cvv').toLowerCase());
+    if (!formData.cardholderName.trim()) newErrors.cardholderName = t('transactions.error.required').replace('{field}', t('transactions.cardholderName').toLowerCase());
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -146,7 +148,7 @@ const TransactionPage = () => {
       const data = await response.json();
 
       if (response.ok) {
-        alert('¡Transacción realizada exitosamente!');
+        alert(t('transactions.success'));
         setFormData({
           currency: 'COP',
           amount: '',
@@ -159,11 +161,11 @@ const TransactionPage = () => {
           cardholderName: ''
         });
       } else {
-        setApiError(data.message || 'Error al procesar la transacción. Intenta de nuevo.');
+        setApiError(data.message || t('transactions.error.connection'));
       }
     } catch (err) {
       console.error('Error:', err);
-      setApiError('Error de conexión. Verifica tu red.');
+      setApiError(t('transactions.error.connection'));
     } finally {
       setIsProcessing(false);
     }
@@ -182,16 +184,12 @@ const TransactionPage = () => {
 
   return (
     <div className="flex min-h-screen bg-bgPpal-light dark:bg-bgPpal-dark">
-      {/* Barra lateral */}
       <Sidebar />
       
-      {/* Contenido principal */}
       <main className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-gray-800/90 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-700/50 overflow-hidden">
-          {/* Header con gradiente */}
           <div className="h-1 bg-gradient-to-r from-purple-500 via-blue-500 to-pink-500"></div>
           
-          {/* Header del pago */}
           <div className="p-6 border-b border-gray-700/50">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -207,7 +205,7 @@ const TransactionPage = () => {
                 <div className="text-2xl font-bold text-white">
                   {selectedCurrency.symbol}{getAmountInCurrency()}
                 </div>
-                <div className="text-sm text-gray-400">{selectedCurrency.code}</div>
+                <div className="text-sm text-gray-400">{selectedCurrency.name}</div>
               </div>
             </div>
           </div>
@@ -219,12 +217,11 @@ const TransactionPage = () => {
               </div>
             )}
 
-            {/* Divisa y Monto */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   <DollarSign size={16} className="inline mr-1" />
-                  Divisa
+                  {t('transactions.currency')}
                 </label>
                 <select
                   value={formData.currency}
@@ -233,7 +230,7 @@ const TransactionPage = () => {
                 >
                   {currencies.map(currency => (
                     <option key={currency.code} value={currency.code} className="bg-gray-800">
-                      {currency.code} - {currency.name}
+                      {currency.name}
                     </option>
                   ))}
                 </select>
@@ -241,7 +238,7 @@ const TransactionPage = () => {
               
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Monto
+                  {t('transactions.amount')}
                 </label>
                 <input
                   type="text"
@@ -256,11 +253,10 @@ const TransactionPage = () => {
               </div>
             </div>
 
-            {/* Descripción */}
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 <FileText size={16} className="inline mr-1" />
-                Descripción de la transacción
+                {t('transactions.description')}
               </label>
               <input
                 type="text"
@@ -274,11 +270,10 @@ const TransactionPage = () => {
               {errors.description && <p className="text-red-400 text-xs mt-1">{errors.description}</p>}
             </div>
 
-            {/* Datos del cliente */}
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 <User size={16} className="inline mr-1" />
-                Nombre completo
+                {t('transactions.fullName')}
               </label>
               <input
                 type="text"
@@ -292,10 +287,9 @@ const TransactionPage = () => {
               {errors.customerName && <p className="text-red-400 text-xs mt-1">{errors.customerName}</p>}
             </div>
 
-            {/* Tipo de documento */}
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
-                Tipo de documento
+                {t('transactions.documentType')}
               </label>
               <select
                 value={formData.documentType}
@@ -310,11 +304,10 @@ const TransactionPage = () => {
               </select>
             </div>
 
-            {/* Número de tarjeta */}
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 <CreditCard size={16} className="inline mr-1" />
-                Número de tarjeta
+                {t('transactions.cardNumber')}
               </label>
               <input
                 type="text"
@@ -329,12 +322,11 @@ const TransactionPage = () => {
               {errors.cardNumber && <p className="text-red-400 text-xs mt-1">{errors.cardNumber}</p>}
             </div>
 
-            {/* Fecha y CVV */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   <Calendar size={16} className="inline mr-1" />
-                  Fecha de vencimiento
+                  {t('transactions.expiryDate')}
                 </label>
                 <input
                   type="text"
@@ -352,7 +344,7 @@ const TransactionPage = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   <Shield size={16} className="inline mr-1" />
-                  CVV
+                  {t('transactions.cvv')}
                 </label>
                 <input
                   type="text"
@@ -368,10 +360,9 @@ const TransactionPage = () => {
               </div>
             </div>
 
-            {/* Nombre del titular */}
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
-                Nombre del titular de la tarjeta
+                {t('transactions.cardholderName')}
               </label>
               <input
                 type="text"
@@ -385,7 +376,6 @@ const TransactionPage = () => {
               {errors.cardholderName && <p className="text-red-400 text-xs mt-1">{errors.cardholderName}</p>}
             </div>
 
-            {/* Botón de transacción */}
             <button
               onClick={handleSubmit}
               disabled={isProcessing}
@@ -398,23 +388,20 @@ const TransactionPage = () => {
               {isProcessing ? (
                 <div className="flex items-center justify-center gap-2">
                   <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
-                  Procesando transacción...
+                  {t('transactions.processing')}
                 </div>
               ) : (
-                `Pagar ${selectedCurrency.symbol}${getAmountInCurrency()}`
+                `${t('transactions.title')} ${selectedCurrency.symbol}${getAmountInCurrency()}`
               )}
             </button>
 
-            {/* Info de seguridad */}
             <div className="flex items-center justify-center gap-2 text-xs text-gray-400">
               <Lock size={14} />
-              <span>Protegido con encriptación de extremo a extremo</span>
+              <span>{t('payment.security')}</span>
             </div>
           </div>
         </div>
       </main>
     </div>
   );
-};
-
-export default TransactionPage;
+}
