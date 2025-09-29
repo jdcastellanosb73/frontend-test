@@ -13,10 +13,20 @@ export default function DashboardPage() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  // Función auxiliar para fetch con timeout
+  const fetchWithTimeout = (url, options = {}, timeout = 10000) => {
+    return Promise.race([
+      fetch(url, options),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Timeout: El servidor tardó demasiado en responder.')), timeout)
+      ),
+    ]);
+  };
+
   useEffect(() => {
     const token = localStorage.getItem('access_token');
     const userData = localStorage.getItem('user');
-    
+
     if (!token || !userData) {
       navigate('/login');
     } else {
@@ -38,21 +48,27 @@ export default function DashboardPage() {
       setError('');
 
       try {
-        const transactionsRes = await fetch('/api/transactions', {
+        // Transacciones
+        const transactionsRes = await fetchWithTimeout('/api/transactions', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
+        if (!transactionsRes.ok) throw new Error('Error al obtener transacciones');
         const transactionsData = await transactionsRes.json();
         const transactionsList = Array.isArray(transactionsData.data) ? transactionsData.data : [];
 
-        const summaryRes = await fetch('/api/transactions/summary', {
+        // Resumen
+        const summaryRes = await fetchWithTimeout('/api/transactions/summary', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
+        if (!summaryRes.ok) throw new Error('Error al obtener el resumen');
         const summaryData = await summaryRes.json();
         const summaryInfo = summaryData || { total_withdrawals: "0.00" };
 
-        const statsRes = await fetch('/api/transactions/stats', {
+        // Estadísticas
+        const statsRes = await fetchWithTimeout('/api/transactions/stats', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
+        if (!statsRes.ok) throw new Error('Error al obtener estadísticas');
         const statsData = await statsRes.json();
         const statsInfo = statsData || { monthlySpending: [], topCategories: [] };
 
@@ -60,8 +76,8 @@ export default function DashboardPage() {
         setSummary(summaryInfo);
         setStatsData(statsInfo);
       } catch (err) {
-        console.error('Error fetching dashboard ', err);
-        setError('Error al cargar los datos del dashboard.');
+        console.error('Error fetching dashboard:', err);
+        setError(err.message || 'Error al cargar los datos del dashboard.');
       } finally {
         setLoading(false);
       }
@@ -97,19 +113,19 @@ export default function DashboardPage() {
   };
 
   const stats = [
-    { 
-      title: t('dashboard.totalSpent').replace('{month}', monthName), 
-      value: `$${formatAmount(monthlySpending)}`, 
+    {
+      title: t('dashboard.totalSpent').replace('{month}', monthName),
+      value: `$${formatAmount(monthlySpending)}`,
       change: ''
     },
-    { 
-      title: t('dashboard.topCategory'), 
+    {
+      title: t('dashboard.topCategory'),
       value: topCategory,
-      change: `$${formatAmount(topCategoryTotal)}` 
+      change: `$${formatAmount(topCategoryTotal)}`
     },
-    { 
-      title: t('dashboard.totalWithdrawals'), 
-      value: `$${formatAmount(summary.total_withdrawals)}`, 
+    {
+      title: t('dashboard.totalWithdrawals'),
+      value: `$${formatAmount(summary.total_withdrawals)}`,
       change: ''
     }
   ];
@@ -117,7 +133,7 @@ export default function DashboardPage() {
   return (
     <div className="flex min-h-screen bg-bgPpal-light dark:bg-bgPpal-dark">
       <Sidebar />
-      
+
       <main className="flex-1 p-6">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-titles-light dark:text-titles-dark">
@@ -130,8 +146,8 @@ export default function DashboardPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {stats.map((stat, index) => (
-            <div 
-              key={index} 
+            <div
+              key={index}
               className="bg-bgSec-light dark:bg-bgSec-dark p-6 rounded-xl border border-line-light dark:border-line-dark shadow-sm"
             >
               <div className="flex items-center justify-between">
@@ -153,7 +169,7 @@ export default function DashboardPage() {
             <h2 className="text-xl font-semibold text-titles-light dark:text-titles-dark">
               {t('dashboard.transactions')}
             </h2>
-            <button 
+            <button
               onClick={() => navigate('/transactions')}
               className="text-purple-600 hover:text-purple-700 text-sm font-medium"
             >
@@ -202,8 +218,8 @@ export default function DashboardPage() {
                 </thead>
                 <tbody>
                   {transactions.map((txn) => (
-                    <tr 
-                      key={txn.id} 
+                    <tr
+                      key={txn.id}
                       className="border-b border-line-light dark:border-line-dark hover:bg-bgPpal-light dark:hover:bg-bgPpal-dark transition-colors"
                     >
                       <td className="py-4 px-2 text-pg-light dark:text-pg-dark">{txn.currency}</td>

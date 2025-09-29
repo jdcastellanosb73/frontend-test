@@ -28,7 +28,7 @@ export default function CardsPage() {
       setLoading(true);
       const token = localStorage.getItem('access_token');
       
-      const response = await fetch('/api/cards', {
+      const response = await fetch('https://backend-test-qawh.onrender.com/api/cards', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
@@ -51,7 +51,7 @@ export default function CardsPage() {
       setIsAdding(true);
       const token = localStorage.getItem('access_token');
       
-      const response = await fetch('/api/cards', {
+      const response = await fetch('https://backend-test-qawh.onrender.com/api/cards', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -81,7 +81,7 @@ export default function CardsPage() {
       setIsRemoving(cardId);
       const token = localStorage.getItem('access_token');
       
-      const response = await fetch(`/api/cards/${cardId}`, {
+      const response = await fetch(`https://backend-test-qawh.onrender.com/api/cards/${cardId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
