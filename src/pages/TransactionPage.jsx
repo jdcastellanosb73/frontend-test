@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Lock, CreditCard, User, FileText, DollarSign, Calendar, Shield } from 'lucide-react';
+import { Lock, CreditCard, User, FileText, DollarSign, Calendar, Shield, IdCard } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/layout/Sidebar';
 import { useLanguage } from '../context/LanguageContext';
 
-// URL del backend: usa VITE_API_URL o VITE_BACKEND_URL si existen, si no usa el fallback
 const API_BASE = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || 'https://backend-test-qawh.onrender.com';
 
 export default function TransactionPage() {
@@ -15,6 +14,7 @@ export default function TransactionPage() {
     description: '',
     customerName: '',
     documentType: 'CC',
+    numeroDocumento: '',
     cardNumber: '',
     expiryDate: '',
     cvv: '',
@@ -57,9 +57,9 @@ export default function TransactionPage() {
   const formatExpiryDateForAPI = (value) => {
     const clean = value.replace(/\D/g, '');
     if (clean.length >= 4) {
-      const month = clean.substring(0, 2);
+      const month = clean.substring(0, 2).padStart(2, '0');
       const year = clean.substring(2, 4);
-      return `20${year}-${month}-01`;
+      return `${month}/${year}`;
     }
     return '';
   };
@@ -86,6 +86,8 @@ export default function TransactionPage() {
     } else if (field === 'amount') {
       const numericValue = value.replace(/[^0-9]/g, '');
       formattedValue = numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    } else if (field === 'numeroDocumento') {
+      formattedValue = value.replace(/[^0-9]/g, '');
     }
 
     setFormData(prev => ({
@@ -105,6 +107,7 @@ export default function TransactionPage() {
     if (!formData.amount) newErrors.amount = t('transactions.error.required').replace('{field}', t('transactions.amount').toLowerCase());
     if (!formData.description.trim()) newErrors.description = t('transactions.error.required').replace('{field}', t('transactions.description').toLowerCase());
     if (!formData.customerName.trim()) newErrors.customerName = t('transactions.error.required').replace('{field}', t('transactions.fullName').toLowerCase());
+    if (!formData.numeroDocumento.trim()) newErrors.numeroDocumento = t('transactions.error.required').replace('{field}', t('transactions.documentNumber') || 'número de documento');
     if (!formData.cardNumber.replace(/\s/g, '')) newErrors.cardNumber = t('transactions.error.required').replace('{field}', t('transactions.cardNumber').toLowerCase());
     if (formData.cardNumber.replace(/\s/g, '').length < 13) newErrors.cardNumber = t('transactions.error.invalidCard');
     if (!formData.expiryDate || formData.expiryDate.length < 5) newErrors.expiryDate = t('transactions.error.required').replace('{field}', t('transactions.expiryDate').toLowerCase());
@@ -140,15 +143,15 @@ export default function TransactionPage() {
           description: formData.description,
           full_name: formData.customerName,
           document_type: formData.documentType,
+          numero_documento: formData.numeroDocumento,
           card_number: formData.cardNumber.replace(/\s/g, ''),
           cvv: formData.cvv,
           expiration_date: formatExpiryDateForAPI(formData.expiryDate),
-          type: 'withdrawal',
-          category: 'General'
+          type: 'payment',
+          category: 'online'
         }),
       });
 
-      // Verificamos content-type antes de parsear JSON
       const contentType = res.headers.get('content-type') || '';
       const data = contentType.includes('application/json') ? await res.json() : null;
 
@@ -160,13 +163,13 @@ export default function TransactionPage() {
           description: '',
           customerName: '',
           documentType: 'CC',
+          numeroDocumento: '',
           cardNumber: '',
           expiryDate: '',
           cvv: '',
           cardholderName: ''
         });
       } else {
-        // Si no viene JSON, mostramos mensaje genérico
         const msg = data?.message || t('transactions.error.connection') || 'Error en el servidor';
         setApiError(msg);
       }
@@ -292,6 +295,24 @@ export default function TransactionPage() {
                 placeholder="Juan Pérez González"
               />
               {errors.customerName && <p className="text-red-400 text-xs mt-1">{errors.customerName}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                <IdCard size={16} className="inline mr-1" />
+                {t('transactions.documentNumber') || 'Número de documento'}
+              </label>
+              <input
+                type="text"
+                value={formData.numeroDocumento}
+                onChange={(e) => handleInputChange('numeroDocumento', e.target.value)}
+                className={`w-full px-3 py-3 bg-gray-700/50 border rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all outline-none ${
+                  errors.numeroDocumento ? 'border-red-500' : 'border-gray-600'
+                }`}
+                placeholder="12345678"
+                maxLength={20}
+              />
+              {errors.numeroDocumento && <p className="text-red-400 text-xs mt-1">{errors.numeroDocumento}</p>}
             </div>
 
             <div>
