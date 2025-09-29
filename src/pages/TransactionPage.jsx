@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/layout/Sidebar';
 import { useLanguage } from '../context/LanguageContext';
 
+const API_BASE = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || 'https://backend-test-qawh.onrender.com';
+
 export default function TransactionPage() {
   const { t } = useLanguage();
   const [formData, setFormData] = useState({
@@ -43,7 +45,7 @@ export default function TransactionPage() {
   const formatCardNumber = (value) => {
     const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
     const matches = v.match(/\d{4,16}/g);
-    const match = matches && matches[0] || '';
+    const match = (matches && matches[0]) || '';
     const parts = [];
     for (let i = 0, len = match.length; i < len; i += 4) {
       parts.push(match.substring(i, i + 4));
@@ -56,7 +58,7 @@ export default function TransactionPage() {
     if (clean.length >= 4) {
       const month = clean.substring(0, 2);
       const year = clean.substring(2, 4);
-      return `20${year}-${month}-01`; 
+      return `20${year}-${month}-01`;
     }
     return '';
   };
@@ -68,7 +70,7 @@ export default function TransactionPage() {
 
   const handleInputChange = (field, value) => {
     let formattedValue = value;
-    
+
     if (field === 'cardNumber') {
       formattedValue = formatCardNumber(value);
     } else if (field === 'expiryDate') {
@@ -84,7 +86,7 @@ export default function TransactionPage() {
       const numericValue = value.replace(/[^0-9]/g, '');
       formattedValue = numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     }
-    
+
     setFormData(prev => ({
       ...prev,
       [field]: formattedValue
@@ -125,7 +127,7 @@ export default function TransactionPage() {
     }
 
     try {
-      const response = await fetch('/api/transactions', {
+      const res = await fetch(`${API_BASE}/api/transactions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -145,9 +147,10 @@ export default function TransactionPage() {
         }),
       });
 
-      const data = await response.json();
+      const contentType = res.headers.get('content-type') || '';
+      const data = contentType.includes('application/json') ? await res.json() : null;
 
-      if (response.ok) {
+      if (res.ok) {
         alert(t('transactions.success'));
         setFormData({
           currency: 'COP',
@@ -161,7 +164,8 @@ export default function TransactionPage() {
           cardholderName: ''
         });
       } else {
-        setApiError(data.message || t('transactions.error.connection'));
+        const msg = data?.message || t('transactions.error.connection') || 'Error en el servidor';
+        setApiError(msg);
       }
     } catch (err) {
       console.error('Error:', err);
@@ -174,22 +178,22 @@ export default function TransactionPage() {
   const getAmountInCurrency = () => {
     if (!formData.amount) return '0.00';
     const numericAmount = formData.amount.replace(/,/g, '');
-    return parseFloat(numericAmount || 0).toLocaleString('es-CO', { 
-      minimumFractionDigits: 2, 
-      maximumFractionDigits: 2 
+    return parseFloat(numericAmount || 0).toLocaleString('es-CO', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
     });
   };
 
-  const selectedCurrency = currencies.find(c => c.code === formData.currency);
+  const selectedCurrency = currencies.find(c => c.code === formData.currency) || currencies[0];
 
   return (
     <div className="flex min-h-screen bg-bgPpal-light dark:bg-bgPpal-dark">
       <Sidebar />
-      
+
       <main className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-gray-800/90 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-700/50 overflow-hidden">
           <div className="h-1 bg-gradient-to-r from-purple-500 via-blue-500 to-pink-500"></div>
-          
+
           <div className="p-6 border-b border-gray-700/50">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -235,7 +239,7 @@ export default function TransactionPage() {
                   ))}
                 </select>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   {t('transactions.amount')}
@@ -340,7 +344,7 @@ export default function TransactionPage() {
                 />
                 {errors.expiryDate && <p className="text-red-400 text-xs mt-1">{errors.expiryDate}</p>}
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   <Shield size={16} className="inline mr-1" />
