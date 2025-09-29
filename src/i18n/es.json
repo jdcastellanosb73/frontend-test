@@ -112,7 +112,8 @@
     "cvv": "CVV",
     "cardholderName": "Nombre del titular",
     "saveCard": "Guardar esta tarjeta para futuros pagos",
-    "setDefault": "Establecer como tarjeta por defecto"
+    "setDefault": "Establecer como tarjeta por defecto",
+    "cardholderLabel": "Nombre como aparece en la tarjeta"
   },
   "transactions": {
     "title": "Hacer transacción",

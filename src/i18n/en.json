@@ -112,7 +112,8 @@
     "cvv": "CVV",
     "cardholderName": "Cardholder name",
     "saveCard": "Save this card for future payments",
-    "setDefault": "Set as default card"
+    "setDefault": "Set as default card",
+    "cardholderLabel": "Name as it appears on card"
   },
   "transactions": {
     "title": "Make transaction",

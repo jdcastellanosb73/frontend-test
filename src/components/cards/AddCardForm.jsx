@@ -3,6 +3,7 @@ import { CreditCard, Calendar, User, Eye, EyeOff, Lock } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 
 const CardPreview = ({ cardNumber, expiryDate, cardholderName }) => {
+  const { t } = useLanguage();
   const getCardIcon = (number) => {
     const clean = number.replace(/\s/g, '');
     if (clean.match(/^4/)) return 'VISA';
@@ -33,13 +34,13 @@ const CardPreview = ({ cardNumber, expiryDate, cardholderName }) => {
         
         <div className="flex justify-between items-end">
           <div>
-            <div className="text-xs opacity-80 mb-1">TITULAR</div>
+            <div className="text-xs opacity-80 mb-1">{t('cards.cardholderName').toUpperCase()}</div>
             <div className="font-semibold text-sm">
-              {cardholderName || 'NOMBRE DEL TITULAR'}
+              {cardholderName || t('cards.cardholderName').toUpperCase()}
             </div>
           </div>
           <div>
-            <div className="text-xs opacity-80 mb-1">VÁLIDA</div>
+            <div className="text-xs opacity-80 mb-1">{t('cards.expiryDate').toUpperCase()}</div>
             <div className="font-semibold text-sm">
               {expiryDate || 'MM/AA'}
             </div>
@@ -223,7 +224,7 @@ export default function AddCardForm({ onAddCard, isAdding }) {
             className={`w-full px-3 py-2 bg-bgPpal-light dark:bg-bgPpal-dark border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition ${
               errors.cardholderName ? 'border-red-500' : 'border-line-light dark:border-line-dark'
             }`}
-            placeholder="Nombre como aparece en la tarjeta"
+            placeholder={t('cards.cardholderLabel')}
           />
           {errors.cardholderName && <p className="text-red-500 text-xs mt-1">{errors.cardholderName}</p>}
         </div>

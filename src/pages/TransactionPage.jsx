@@ -147,6 +147,7 @@ export default function TransactionPage() {
         }),
       });
 
+
       const contentType = res.headers.get('content-type') || '';
       const data = contentType.includes('application/json') ? await res.json() : null;
 
