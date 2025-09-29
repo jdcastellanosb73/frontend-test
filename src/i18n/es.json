@@ -128,6 +128,7 @@
     "cardholderName": "Nombre del titular de la tarjeta",
     "processing": "Procesando transacción...",
     "success": "¡Transacción realizada exitosamente!",
+    "documentNumber": "Número de documento",
     "error": {
       "required": "El {field} es requerido",
       "invalidCard": "Número de tarjeta inválido",

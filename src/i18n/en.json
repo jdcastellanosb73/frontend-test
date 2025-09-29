@@ -128,6 +128,7 @@
     "cardholderName": "Cardholder name",
     "processing": "Processing transaction...",
     "success": "Transaction completed successfully!",
+    "documentNumber": "Document number",
     "error": {
       "required": "{field} is required",
       "invalidCard": "Invalid card number",
