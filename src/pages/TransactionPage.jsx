@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/layout/Sidebar';
 import { useLanguage } from '../context/LanguageContext';
 
+// URL del backend: usa VITE_API_URL o VITE_BACKEND_URL si existen, si no usa el fallback
 const API_BASE = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || 'https://backend-test-qawh.onrender.com';
 
 export default function TransactionPage() {
@@ -147,7 +148,7 @@ export default function TransactionPage() {
         }),
       });
 
-
+      // Verificamos content-type antes de parsear JSON
       const contentType = res.headers.get('content-type') || '';
       const data = contentType.includes('application/json') ? await res.json() : null;
 
@@ -165,6 +166,7 @@ export default function TransactionPage() {
           cardholderName: ''
         });
       } else {
+        // Si no viene JSON, mostramos mensaje genérico
         const msg = data?.message || t('transactions.error.connection') || 'Error en el servidor';
         setApiError(msg);
       }
