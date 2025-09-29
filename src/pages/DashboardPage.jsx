@@ -13,7 +13,9 @@ export default function DashboardPage() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // Función auxiliar para fetch con timeout
+  const API_BASE_URL =
+    import.meta.env.VITE_BACKEND_URL || "https://backend-test-qawh.onrender.com";
+
   const fetchWithTimeout = (url, options = {}, timeout = 10000) => {
     return Promise.race([
       fetch(url, options),
@@ -48,24 +50,24 @@ export default function DashboardPage() {
       setError('');
 
       try {
-        // Transacciones
-        const transactionsRes = await fetchWithTimeout('/api/transactions', {
+        // ✅ Transacciones
+        const transactionsRes = await fetchWithTimeout(`${API_BASE_URL}/api/transactions`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!transactionsRes.ok) throw new Error('Error al obtener transacciones');
         const transactionsData = await transactionsRes.json();
         const transactionsList = Array.isArray(transactionsData.data) ? transactionsData.data : [];
 
-        // Resumen
-        const summaryRes = await fetchWithTimeout('/api/transactions/summary', {
+        // ✅ Resumen
+        const summaryRes = await fetchWithTimeout(`${API_BASE_URL}/api/transactions/summary`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!summaryRes.ok) throw new Error('Error al obtener el resumen');
         const summaryData = await summaryRes.json();
         const summaryInfo = summaryData || { total_withdrawals: "0.00" };
 
-        // Estadísticas
-        const statsRes = await fetchWithTimeout('/api/transactions/stats', {
+        // ✅ Estadísticas
+        const statsRes = await fetchWithTimeout(`${API_BASE_URL}/api/transactions/stats`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!statsRes.ok) throw new Error('Error al obtener estadísticas');
@@ -84,7 +86,7 @@ export default function DashboardPage() {
     };
 
     fetchData();
-  }, [user, navigate]);
+  }, [user, navigate, API_BASE_URL]);
 
   if (!user) return null;
 
